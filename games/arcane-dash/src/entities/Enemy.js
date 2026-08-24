@@ -1,6 +1,7 @@
 // Enemy Entity System
 import { soundFX } from '../utils/soundFX.js';
 import { AlchemistPotion } from './Collectible.js';
+import { EnemyProjectile } from './Projectile.js';
 
 export class Enemy extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, textureKey) {
@@ -240,5 +241,59 @@ export class FlyingWatcher extends Enemy {
     destroy(fromScene) {
         if (this.flapTimer) this.flapTimer.remove();
         super.destroy(fromScene);
+    }
+}
+
+export class ArcaneSentry extends Enemy {
+    constructor(scene, x, y) {
+        super(scene, x, y, 'enemy_sentry');
+        this.hp = 2;
+        this.body.setAllowGravity(false);
+        this.body.setImmovable(true);
+        this.body.setSize(20, 24);
+        this.lastShotTime = 0;
+        this.shotCooldown = 2400;
+        this.detectRange = 360;
+    }
+
+    update(time) {
+        if (!this.active || this.isDead || this.isFrozen) return;
+
+        const player = this.scene.player;
+        if (!player || player.isDead) return;
+
+        const dist = Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y);
+
+        // Face the player
+        this.setFlipX(player.x < this.x);
+
+        // Shoot projectile if in range and cooled down
+        if (dist <= this.detectRange && time > this.lastShotTime + this.shotCooldown) {
+            this.lastShotTime = time;
+            this.shootDarkOrb(player);
+        }
+    }
+
+    shootDarkOrb(player) {
+        if (!this.active || this.isDead || !this.scene) return;
+
+        // Charge glow flash
+        this.setTint(0x00ffff);
+        this.scene.time.delayedCall(160, () => {
+            if (this.active && !this.isFrozen) this.clearTint();
+        });
+
+        // Compute angle towards player
+        const angle = Phaser.Math.Angle.Between(this.x, this.y, player.x, player.y);
+        const speed = 190;
+        const vx = Math.cos(angle) * speed;
+        const vy = Math.sin(angle) * speed;
+
+        soundFX.playLaser();
+
+        const orb = new EnemyProjectile(this.scene, this.x, this.y, vx, vy);
+        if (this.scene.enemyProjectiles) {
+            this.scene.enemyProjectiles.add(orb);
+        }
     }
 }

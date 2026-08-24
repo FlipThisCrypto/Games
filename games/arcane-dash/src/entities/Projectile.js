@@ -136,3 +136,50 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
         });
     }
 }
+
+export class EnemyProjectile extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y, velocityX, velocityY) {
+        super(scene, x, y, 'enemy_dark_orb');
+        scene.add.existing(this);
+        scene.physics.add.existing(this);
+
+        this.body.setAllowGravity(false);
+        this.body.setSize(8, 8);
+        this.setVelocity(velocityX, velocityY);
+        this.setDepth(16);
+
+        // Slow spin
+        scene.tweens.add({
+            targets: this,
+            angle: 360,
+            duration: 800,
+            repeat: -1
+        });
+
+        // Auto destroy after 4.5 seconds
+        scene.time.delayedCall(4500, () => {
+            if (this.active) this.destroy();
+        });
+    }
+
+    onHitPlayer(player) {
+        player.takeDamage(1);
+        this.explode();
+    }
+
+    explode() {
+        if (!this.active) return;
+        if (this.scene) {
+            const emitter = this.scene.add.particles(this.x, this.y, 'particle_sparkle', {
+                speed: { min: 30, max: 90 },
+                lifespan: 250,
+                quantity: 6,
+                tint: 0x9b51e0
+            });
+            this.scene.time.delayedCall(300, () => {
+                if (emitter && emitter.active) emitter.destroy();
+            });
+        }
+        this.destroy();
+    }
+}

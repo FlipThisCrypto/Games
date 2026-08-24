@@ -278,7 +278,7 @@ export function generateAllTextures(scene) {
         ctx.fillRect(23, 8, 2, 20);
     });
 
-    // 3. SHADOW PET FAMILIAR (16x16)
+    // 3. SHADOW PET FAMILIAR & SENTRY TURRET (16x16 / 24x28)
     createTexture('shadow_pet', 16, 16, (ctx) => {
         ctx.fillStyle = '#1e1435';
         ctx.fillRect(2, 2, 12, 12);
@@ -291,6 +291,26 @@ export function generateAllTextures(scene) {
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(4, 7, 1, 1);
         ctx.fillRect(11, 7, 1, 1);
+    });
+
+    createTexture('enemy_sentry', 24, 28, (ctx) => {
+        ctx.fillStyle = '#2c3e50';
+        ctx.fillRect(4, 16, 16, 12);
+        ctx.fillStyle = '#8e44ad';
+        ctx.fillRect(6, 6, 12, 14);
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillRect(8, 8, 8, 4); // Glowing visor / eye
+        ctx.fillStyle = '#f1c40f';
+        ctx.fillRect(10, 0, 4, 6); // Horn / antenna
+    });
+
+    createTexture('enemy_dark_orb', 12, 12, (ctx) => {
+        ctx.fillStyle = '#9b51e0';
+        ctx.fillRect(2, 2, 8, 8);
+        ctx.fillRect(4, 0, 4, 12);
+        ctx.fillRect(0, 4, 12, 4);
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillRect(4, 4, 4, 4);
     });
 
     // 4. PROJECTILES

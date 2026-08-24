@@ -3,7 +3,7 @@ import { GAME_CONFIG } from '../config.js';
 import { getWizNerdById } from '../utils/nftMetadata.js';
 import { soundFX } from '../utils/soundFX.js';
 import { Player } from '../entities/Player.js';
-import { SlimeWalker, FlyingWatcher } from '../entities/Enemy.js';
+import { SlimeWalker, FlyingWatcher, ArcaneSentry } from '../entities/Enemy.js';
 import { ArcaneMushroom, SpellShard } from '../entities/Collectible.js';
 import { SpringPad, ManaGeyser, CrystalSwitch, BarrierBlock, DestructiblePot, CrumblingPlatform, ManaCrystal, SpikeHazard, RuneTrap } from '../entities/InteractiveObjects.js';
 
@@ -62,6 +62,7 @@ export class GameScene extends Phaser.Scene {
         this.runeTraps = this.add.group();
         this.enemies = this.add.group({ runChildUpdate: true });
         this.projectiles = this.add.group();
+        this.enemyProjectiles = this.add.group();
         this.collectibles = this.add.group({ runChildUpdate: true });
 
         // Backgrounds & Level Layout
@@ -320,6 +321,16 @@ export class GameScene extends Phaser.Scene {
             this.enemies.add(eye);
         });
 
+        const sentrySpawns = [
+            { x: 1040, y: 130 },
+            { x: 2160, y: 200 },
+            { x: 2680, y: 140 }
+        ];
+        sentrySpawns.forEach(s => {
+            const sentry = new ArcaneSentry(this, s.x, s.y);
+            this.enemies.add(sentry);
+        });
+
         // 10. HAZARD SPIKES & RUNE TRAPS
         const spikePits = [640, 672, 1504, 1536, 2752, 2784];
         spikePits.forEach(sx => {
@@ -440,6 +451,19 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.overlap(this.projectiles, this.pots, (proj, pot) => {
             pot.smash();
             proj.explode();
+        });
+
+        // Enemy Projectiles Collisions
+        this.physics.add.overlap(this.player, this.enemyProjectiles, (player, proj) => {
+            if (proj.onHitPlayer) proj.onHitPlayer(player);
+        });
+        this.physics.add.collider(this.enemyProjectiles, this.platforms, (proj) => {
+            if (proj.explode) proj.explode();
+        });
+        this.physics.add.overlap(this.projectiles, this.enemyProjectiles, (pProj, eProj) => {
+            if (pProj.explode) pProj.explode();
+            if (eProj.explode) eProj.explode();
+            soundFX.playLaser();
         });
 
         // Player vs Switches (activating by touch/walking into)
