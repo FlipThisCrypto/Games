@@ -14,6 +14,7 @@ export class GameScene extends Phaser.Scene {
 
     init(data) {
         this.selectedWizNerdId = (data && data.wizNerdId) ? data.wizNerdId : '2396';
+        this.currentStage = (data && data.stage) ? Number(data.stage) : 1;
         this.score = 0;
         this.shardsCollected = [false, false, false];
         this.startTime = 0;
@@ -94,7 +95,7 @@ export class GameScene extends Phaser.Scene {
         // Quick Restart
         this.input.keyboard.on('keydown-R', () => {
             soundFX.stopBGM();
-            this.scene.restart({ wizNerdId: this.selectedWizNerdId });
+            this.scene.restart({ wizNerdId: this.selectedWizNerdId, stage: this.currentStage });
         });
 
         window.activeGameScene = this;
@@ -104,7 +105,16 @@ export class GameScene extends Phaser.Scene {
         const width = GAME_CONFIG.LEVEL.WIDTH;
 
         const bgSky = this.add.graphics();
-        bgSky.fillGradientStyle(0x0a0612, 0x0a0612, 0x1a0f2e, 0x2e174d, 1);
+        if (this.currentStage === 2) {
+            // Nether Ley-Lines (Crimson / Void)
+            bgSky.fillGradientStyle(0x1a0505, 0x1a0505, 0x3d0b1a, 0x5a1128, 1);
+        } else if (this.currentStage === 3) {
+            // Archmage Pinnacle (Golden Twilight / Nebula)
+            bgSky.fillGradientStyle(0x0a1020, 0x0a1020, 0x1a264a, 0x3a2050, 1);
+        } else {
+            // Crystal Caverns (Classic Deep Violet)
+            bgSky.fillGradientStyle(0x0a0612, 0x0a0612, 0x1a0f2e, 0x2e174d, 1);
+        }
         bgSky.fillRect(0, 0, width, GAME_CONFIG.HEIGHT);
         bgSky.setScrollFactor(0);
 

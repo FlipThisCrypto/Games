@@ -467,7 +467,13 @@
             <h1>WIZNERDZ: ARCANE DASH</h1>
         </div>
         <div class="web3-controls">
-            <label for="wiznerd-select" style="font-size: 11px; color: var(--text-dim);">SELECT WIZNERD:</label>
+            <label for="stage-select" style="font-size: 11px; color: var(--text-dim);">STAGE:</label>
+            <select id="stage-select">
+                <option value="1">Stage 1: Crystal Caverns</option>
+                <option value="2">Stage 2: Nether Ley-Lines</option>
+                <option value="3">Stage 3: Archmage Pinnacle</option>
+            </select>
+            <label for="wiznerd-select" style="font-size: 11px; color: var(--text-dim);">WIZNERD:</label>
             <select id="wiznerd-select"></select>
             <button id="wallet-btn" class="btn-web3">Connect Wallet</button>
             <button id="sound-btn" class="btn-web3" style="background: #2d1b4e; border: 1px solid var(--neon-cyan); padding: 7px 10px;" title="Toggle Sound (M)">🔊</button>

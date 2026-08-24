@@ -288,6 +288,21 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Stage Selector
+    const stageSelector = document.getElementById('stage-select');
+    if (stageSelector) {
+        stageSelector.addEventListener('change', (e) => {
+            const newStage = Number(e.target.value);
+            if (window.activeGameScene) {
+                soundFX.stopBGM();
+                window.activeGameScene.scene.restart({
+                    wizNerdId: window.activeGameScene.selectedWizNerdId,
+                    stage: newStage
+                });
+            }
+        });
+    }
+
     // Connect Wallet Button & localStorage persistence
     const walletBtn = document.getElementById('wallet-btn');
     const savedWallet = localStorage.getItem('wiznerdz_wallet');
