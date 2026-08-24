@@ -5,7 +5,7 @@ import { soundFX } from '../utils/soundFX.js';
 import { Player } from '../entities/Player.js';
 import { SlimeWalker, FlyingWatcher } from '../entities/Enemy.js';
 import { ArcaneMushroom, SpellShard } from '../entities/Collectible.js';
-import { SpringPad, ManaGeyser, CrystalSwitch, BarrierBlock, DestructiblePot, CrumblingPlatform, ManaCrystal } from '../entities/InteractiveObjects.js';
+import { SpringPad, ManaGeyser, CrystalSwitch, BarrierBlock, DestructiblePot, CrumblingPlatform, ManaCrystal, SpikeHazard, RuneTrap } from '../entities/InteractiveObjects.js';
 
 export class GameScene extends Phaser.Scene {
     constructor() {
@@ -59,6 +59,7 @@ export class GameScene extends Phaser.Scene {
         this.pots = this.physics.add.group();
         this.crumblingPlatforms = this.physics.add.staticGroup();
         this.geysers = this.add.group();
+        this.runeTraps = this.add.group();
         this.enemies = this.add.group({ runChildUpdate: true });
         this.projectiles = this.add.group();
         this.collectibles = this.add.group({ runChildUpdate: true });
@@ -319,7 +320,24 @@ export class GameScene extends Phaser.Scene {
             this.enemies.add(eye);
         });
 
-        // 10. GOAL PORTAL
+        // 10. HAZARD SPIKES & RUNE TRAPS
+        const spikePits = [640, 672, 1504, 1536, 2752, 2784];
+        spikePits.forEach(sx => {
+            const spk = new SpikeHazard(this, sx, 416);
+            this.spikes.add(spk);
+        });
+
+        const runeTrapSpawns = [
+            { x: 1120, y: 250, interval: 2200, offset: 0 },
+            { x: 1980, y: 280, interval: 2500, offset: 800 },
+            { x: 2860, y: 150, interval: 1900, offset: 400 }
+        ];
+        runeTrapSpawns.forEach(rt => {
+            const trap = new RuneTrap(this, rt.x, rt.y, rt.interval, rt.offset);
+            this.runeTraps.add(trap);
+        });
+
+        // 11. GOAL PORTAL
         this.goalPortal = this.physics.add.staticSprite(3450, 360, 'portal_gate');
         this.goalPortal.refreshBody();
 
@@ -371,8 +389,19 @@ export class GameScene extends Phaser.Scene {
         this.physics.add.collider(this.pots, this.platforms);
 
         // Player vs Spikes
-        this.physics.add.overlap(this.player, this.spikes, (player) => {
-            player.takeDamage();
+        this.physics.add.overlap(this.player, this.spikes, (player, spike) => {
+            if (spike && spike.onHitPlayer) {
+                spike.onHitPlayer(player);
+            } else {
+                player.takeDamage();
+            }
+        });
+
+        // Player vs Rune Traps
+        this.physics.add.overlap(this.player, this.runeTraps, (player, trap) => {
+            if (trap && trap.onHitPlayer) {
+                trap.onHitPlayer(player);
+            }
         });
 
         // Player vs Enemies

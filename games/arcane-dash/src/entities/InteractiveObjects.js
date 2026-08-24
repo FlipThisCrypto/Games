@@ -274,3 +274,81 @@ export class ManaCrystal extends Phaser.Physics.Arcade.Sprite {
         this.destroy();
     }
 }
+
+export class SpikeHazard extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y) {
+        super(scene, x, y, 'hazard_spikes');
+        scene.add.existing(this);
+        scene.physics.add.existing(this, true); // static body
+        this.body.setSize(30, 16);
+        this.body.setOffset(1, 16);
+        this.damage = 1;
+    }
+
+    onHitPlayer(player) {
+        player.takeDamage(this.damage);
+        // Bounce player upward slightly
+        player.body.setVelocityY(-260);
+    }
+}
+
+export class RuneTrap extends Phaser.Physics.Arcade.Sprite {
+    constructor(scene, x, y, interval = 2200, offset = 0) {
+        super(scene, x, y, 'rune_trap_idle');
+        scene.add.existing(this);
+        scene.physics.add.existing(this);
+
+        this.body.setAllowGravity(false);
+        this.body.setImmovable(true);
+        this.body.setSize(28, 12);
+        this.body.setOffset(2, 4);
+
+        this.isActive = false;
+        this.interval = interval;
+
+        scene.time.delayedCall(offset, () => {
+            if (!this.active) return;
+            this.pulseTimer = scene.time.addEvent({
+                delay: this.interval,
+                callback: this.triggerSurge,
+                callbackScope: this,
+                loop: true
+            });
+        });
+    }
+
+    triggerSurge() {
+        if (!this.active) return;
+        this.isActive = true;
+        this.setTexture('rune_trap_active');
+        this.body.setSize(28, 36);
+        this.body.setOffset(2, 4);
+
+        // Sound & surge particles
+        soundFX.playLaser();
+
+        const burst = this.scene.add.particles(this.x, this.y - 8, 'particle_sparkle', {
+            speed: { min: 40, max: 120 },
+            lifespan: 250,
+            quantity: 6,
+            tint: 0x00ffff
+        });
+        this.scene.time.delayedCall(300, () => burst.destroy());
+
+        this.scene.time.delayedCall(900, () => {
+            if (this.active) {
+                this.isActive = false;
+                this.setTexture('rune_trap_idle');
+                this.body.setSize(28, 12);
+                this.body.setOffset(2, 4);
+            }
+        });
+    }
+
+    onHitPlayer(player) {
+        if (this.isActive) {
+            player.takeDamage(1);
+            player.body.setVelocityY(-240);
+        }
+    }
+}

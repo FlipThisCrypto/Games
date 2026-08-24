@@ -254,6 +254,30 @@ export function generateAllTextures(scene) {
         ctx.fillRect(13, 14, 6, 26);
     });
 
+    // Rune Lightning Trap (32x32)
+    createTexture('rune_trap_idle', 32, 16, (ctx) => {
+        ctx.fillStyle = '#2d1b4e';
+        ctx.fillRect(0, 8, 32, 8);
+        ctx.fillStyle = '#5f27cd';
+        ctx.fillRect(4, 4, 24, 4);
+        ctx.fillStyle = '#341f97';
+        ctx.fillRect(12, 0, 8, 4);
+    });
+
+    createTexture('rune_trap_active', 32, 40, (ctx) => {
+        ctx.fillStyle = '#2d1b4e';
+        ctx.fillRect(0, 32, 32, 8);
+        // Crackling lightning surge
+        ctx.fillStyle = '#00ffff';
+        ctx.fillRect(6, 4, 4, 28);
+        ctx.fillRect(14, 0, 4, 32);
+        ctx.fillRect(22, 4, 4, 28);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(7, 8, 2, 20);
+        ctx.fillRect(15, 4, 2, 24);
+        ctx.fillRect(23, 8, 2, 20);
+    });
+
     // 3. SHADOW PET FAMILIAR (16x16)
     createTexture('shadow_pet', 16, 16, (ctx) => {
         ctx.fillStyle = '#1e1435';
