@@ -348,7 +348,8 @@
             <span style="font-size: 24px;">🧙‍♂️</span>
             <h1>WIZNERDZ ARCADE</h1>
         </div>
-        <div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button class="btn-wallet" id="btn-open-profile" style="background: linear-gradient(135deg, #0984e3, #00cec9); border-color: var(--neon-cyan);">🧙‍♂️ ARCANE PROFILE</button>
             <button class="btn-wallet" id="connect-wallet-btn">Connect Wallet</button>
         </div>
     </header>
@@ -466,9 +467,41 @@
         </div>
     </div>
 
+    <!-- Arcane Profile Modal -->
+    <div id="profile-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(8, 4, 13, 0.92); backdrop-filter: blur(6px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 20px;">
+        <div style="background: #180d29; border: 2px solid var(--neon-cyan); border-radius: 12px; max-width: 520px; width: 100%; padding: 24px; box-shadow: 0 0 30px rgba(0, 255, 255, 0.35); text-align: center;">
+            <h2 style="color: var(--neon-gold); font-size: 20px; margin-bottom: 4px;">🧙‍♂️ UNIFIED ARCANE PROFILE</h2>
+            <div id="profile-rank-badge" style="display: inline-block; background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: #fff; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 20px; margin-bottom: 16px;">RANK: ARCHMAGE ADEPT</div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: left; margin-bottom: 16px; font-size: 12px;">
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(0,255,255,0.2); border-radius: 8px; padding: 10px;">
+                    <div style="color: var(--neon-cyan); font-weight: bold; margin-bottom: 6px;">⚡ Arcane Dash</div>
+                    <div id="prof-dash-runs">Runs Cleared: 0</div>
+                    <div id="prof-dash-time">Best Time: --:--</div>
+                    <div id="prof-dash-shards">Shards Found: 0</div>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(155,81,224,0.3); border-radius: 8px; padding: 10px;">
+                    <div style="color: var(--neon-purple); font-weight: bold; margin-bottom: 6px;">🌌 Void Survivor</div>
+                    <div id="prof-surv-time">Best Survival: 00:00</div>
+                    <div id="prof-surv-kills">Total Kills: 0</div>
+                    <div id="prof-surv-rank">Max Level: LV 1</div>
+                </div>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(241,196,15,0.3); border-radius: 8px; padding: 10px; text-align: left; font-size: 12px; margin-bottom: 16px;">
+                <div style="color: var(--neon-gold); font-weight: bold; margin-bottom: 6px;">🎖️ Badges & Web3 Identity</div>
+                <div id="prof-achievements">Badges Unlocked: 0 / 6</div>
+                <div id="prof-wallet">Connected Wallet: None</div>
+            </div>
+
+            <button id="btn-close-profile" style="background: linear-gradient(135deg, #00b894, #00cec9); color: #08040d; font-weight: 900; border: none; padding: 10px 28px; font-family: inherit; font-size: 13px; border-radius: 6px; cursor: pointer;">CLOSE</button>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer>
-        <p>WizNerdz Gaming Universe &bull; Built with Phaser 3 &bull; Open Source Web3 Arcade</p>
+        <p>WizNerdz Gaming Universe &bull; Built with Phaser 3 &bull; Open Source Web3 Arcade Suite</p>
     </footer>
 
     <script>
@@ -485,6 +518,95 @@
                 localStorage.setItem('wiznerdz_wallet', mockAddr);
                 btn.textContent = `${mockAddr} (Connected)`;
                 btn.style.background = '#27ae60';
+            });
+        }
+
+        // Unified Profile Modal Logic
+        const openProfBtn = document.getElementById('btn-open-profile');
+        const closeProfBtn = document.getElementById('btn-close-profile');
+        const profModal = document.getElementById('profile-modal');
+
+        function updateProfileUI() {
+            // Read Game 1 stats
+            let dashRuns = 0;
+            let dashBestTime = null;
+            let dashShards = 0;
+            try {
+                const dashBoard = JSON.parse(localStorage.getItem('wiznerdz_leaderboard') || '[]');
+                dashRuns = dashBoard.length;
+                if (dashBoard.length > 0) {
+                    dashBestTime = dashBoard[0].time;
+                    dashShards = dashBoard.reduce((acc, r) => acc + (r.shards || 0), 0);
+                }
+            } catch {}
+
+            // Read Game 2 stats
+            let survBestTime = null;
+            let survTotalKills = 0;
+            let survMaxLevel = 1;
+            try {
+                const survBoard = JSON.parse(localStorage.getItem('wiznerdz_survivor_leaderboard') || '[]');
+                if (survBoard.length > 0) {
+                    survBestTime = survBoard[0].time;
+                    survTotalKills = survBoard.reduce((acc, r) => acc + (r.kills || 0), 0);
+                    survMaxLevel = Math.max(...survBoard.map(r => r.level || 1));
+                }
+            } catch {}
+
+            // Read Achievements
+            let achCount = 0;
+            try {
+                const achs = JSON.parse(localStorage.getItem('wiznerdz_achievements') || '[]');
+                achCount = achs.length;
+            } catch {}
+
+            // Compute Master Rank
+            let rank = 'NOVICE WIZARD';
+            if (dashRuns >= 1 || survTotalKills >= 20 || achCount >= 1) rank = 'ADEPT EVOKER';
+            if (dashRuns >= 3 || survTotalKills >= 100 || achCount >= 3) rank = 'HIGH ARCHMAGE';
+            if (dashRuns >= 5 && survTotalKills >= 200 && achCount >= 5) rank = 'GRAND MAGUS SUPREME 👑';
+
+            document.getElementById('profile-rank-badge').textContent = `RANK: ${rank}`;
+            document.getElementById('prof-dash-runs').textContent = `Runs Cleared: ${dashRuns}`;
+
+            if (dashBestTime) {
+                const totalSec = Math.floor(dashBestTime / 1000);
+                const mins = Math.floor(totalSec / 60).toString().padStart(2, '0');
+                const secs = (totalSec % 60).toString().padStart(2, '0');
+                document.getElementById('prof-dash-time').textContent = `Best Time: ${mins}:${secs}`;
+            } else {
+                document.getElementById('prof-dash-time').textContent = `Best Time: --:--`;
+            }
+
+            document.getElementById('prof-dash-shards').textContent = `Shards Found: ${dashShards}`;
+
+            if (survBestTime) {
+                const totalSec = Math.floor(survBestTime / 1000);
+                const mins = Math.floor(totalSec / 60).toString().padStart(2, '0');
+                const secs = (totalSec % 60).toString().padStart(2, '0');
+                document.getElementById('prof-surv-time').textContent = `Best Survival: ${mins}:${secs}`;
+            } else {
+                document.getElementById('prof-surv-time').textContent = `Best Survival: 00:00`;
+            }
+
+            document.getElementById('prof-surv-kills').textContent = `Total Kills: ${survTotalKills}`;
+            document.getElementById('prof-surv-rank').textContent = `Max Level: LV ${survMaxLevel}`;
+            document.getElementById('prof-achievements').textContent = `Badges Unlocked: ${achCount} / 6`;
+
+            const wallet = localStorage.getItem('wiznerdz_wallet') || 'Not Connected';
+            document.getElementById('prof-wallet').textContent = `Connected Wallet: ${wallet}`;
+        }
+
+        if (openProfBtn) {
+            openProfBtn.addEventListener('click', () => {
+                updateProfileUI();
+                if (profModal) profModal.style.display = 'flex';
+            });
+        }
+
+        if (closeProfBtn) {
+            closeProfBtn.addEventListener('click', () => {
+                if (profModal) profModal.style.display = 'none';
             });
         }
     </script>
