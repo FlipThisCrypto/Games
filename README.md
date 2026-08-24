@@ -1,66 +1,87 @@
-# 🧙‍♂️ WizNerdz Games Suite
+# 🧙‍♂️ WizNerdz Arcade - Multi-Game Universe
 
-Welcome to the official repository for the **WizNerdz Gaming Universe**, a multi-game Web3-enabled arcade portal powered by HTML5, Phaser 3, and modern browser standards.
+A high-performance browser arcade suite inspired by classic 2D action games and powered by **Phaser 3** and modern JavaScript, celebrating the **WizNerdz** pixel art NFT collection.
 
----
-
-## 📁 Repository Structure
-
-This repository is designed to host multiple independent and interconnected games cleanly organized in the `games/` directory:
-
-```
-/
-├── index.html                  # WizNerdz Arcade Portal & Game Hub
-├── README.md                   # Repository overview & developer guide
-├── .gitignore                  # Git ignore rules
-└── games/
-    └── arcane-dash/            # Game 1: 2D Action Platformer
-        ├── index.html          # Game launcher & standalone entrypoint
-        ├── assets/
-        │   └── avatars/        # Official WizNerd pixel art portraits
-        └── src/
-            ├── main.js         # Phaser 3 setup & HUD bridge
-            ├── config.js       # Resolution, physics, and keybindings
-            ├── entities/       # Player, Enemy, Projectile, Familiar, InteractiveObjects
-            ├── scenes/         # PreloadScene, GameScene
-            └── utils/          # nftMetadata, soundFX, textureGenerator
-```
+Live Portal: [`index.html`](./index.html)  
+GitHub Repository: [https://github.com/FlipThisCrypto/Games](https://github.com/FlipThisCrypto/Games)
 
 ---
 
-## 🎮 Available Games
+## 🎮 The Three Flagship Arcade Titles
 
 ### 1. **WizNerdz: Arcane Dash** (`games/arcane-dash/`)
-- **Genre**: 2D Action Platformer
-- **Inspiration**: *Mega Man*, *Cave Story*, *Noita*, *Celeste*
+- **Genre**: 2D Fast-Paced Action Platformer & Speedrun Challenge.
 - **Features**:
-  - 5 Authentic WizNerd NFT Characters with unique stats, staff weapons, and passives.
-  - Charged spell attacks, wall-sliding, wall-jumping, and double-jumping.
-  - Interactive board mechanics: Spring Mushroom Pads, Mana Geysers, Crystal Switches, Energy Barriers, Destructible Pots, and Crumbling Platforms.
-  - Autonomous Floating Shadow Pet Familiar companion.
-  - Procedural 8-bit Web Audio synthesis (zero audio asset dependencies).
+  - **3 Distinct Dungeon Stages**: *Crystal Caverns*, *Nether Ley-Lines*, and *Archmage Pinnacle*.
+  - **Dynamic Acrobatics**: Double jumping, wall-sliding, wall-kicking, mana geysers, spring pads, and crumbling platforms.
+  - **Tactical Combat**: Charged staff projectiles, destructible rune barriers, slime stomping, freeze ice platforms, and Arcane Sentry turrets with projectile clashing.
+  - **6 In-Game Achievements**: Real-time toast notifications and badge collection modal.
+  - **Hall of Archmagi Leaderboard**: Sub-millisecond speedrun time tracking.
+  - **Virtual Touch Controls**: Full mobile and tablet support.
+
+### 2. **WizNerdz: Void Survivor** (`games/void-survivor/`)
+- **Genre**: Auto-Spellcaster Horde Survival Roguelite (Vampire Survivors style).
+- **Features**:
+  - **360° Top-Down Arena**: Endless swarms of Void Crawlers, Bats, and Elite Brutes.
+  - **Autonomous Auto-Casting**: Orbiting Crystals, expanding Inferno Rings, 8-way Void Novas, and Arcane Thunderbolts.
+  - **Familiar Pet Combat AI**: Autonomous Shadow Pet companion for WizNerd #1337 tracking and blasting elite foes.
+  - **Relic Drops**: Rare treasure chests for instant spell upgrades and arcane vacuum magnets.
+  - **Persistent Survival Records**: Survival time and kill count leaderboard.
+
+### 3. **WizNerdz: Tower of the Archmage** (`games/tower-of-archmage/`)
+- **Genre**: Turn-Based Rune Match-3 Combat RPG & Dungeon Crawler.
+- **Features**:
+  - **7x7 Rune Grid**: Match Fire (DMG), Ice (Stun/Weakness), Arcane (Mana), Life (Heal), Shield (Armor), and Skull (Crit Strike) runes.
+  - **5-Floor Boss Gauntlet**: Void Stone Golem, Crystal Weaver Spider, Arch-Lich Malakar, Nether Dragon, and Archmage Valerius Supreme.
+  - **Character Signature Ultimates**:
+    - `#2396 (Crystal Magus)`: *Crystal Cataclysm* (130 DMG + 4 Arcane Runes)
+    - `#101 (Pyromancer)`: *Inferno Supernova* (160 DMG + row explosion)
+    - `#1337 (Void Summoner)`: *Shadow Drain* (90 DMG + 50 HP Life Steal)
+    - `#512 (Illusionist)`: *Absolute Zero* (80 DMG + 50% Boss Attack Weakening)
+    - `#4040 (Golden Alchemist)`: *Philosopher Elixir* (+80 HP & +60 Shield)
+  - **Dungeon Ascent Leaderboard**: Records top floor ascents and victories.
 
 ---
 
-## 🚀 How to Run Locally
+## 🧙‍♂️ Authentic WizNerd NFT Character Roster
 
-You can run any local static HTTP server from the root of this repository:
+| WizNerd ID | Name / Class | Signature Weapon | Passives & Special Skills |
+| :--- | :--- | :--- | :--- |
+| **#2396** | **Crystal Magus** | Obsidian Crystal Staff | Piercing Mega Beam laser, Orbiting Crystals, Cataclysm |
+| **#1337** | **Void Summoner** | Shadow Tendril Staff | Orbiting Shadow Pet Familiar, Void Nova, Shadow Drain |
+| **#101** | **Pyromancer** | Cinder Flame Staff | High Jump / Double Jump, Inferno Fireball, Supernova |
+| **#512** | **Illusionist** | Prismatic Wand | Wind Glide, Prismatic Rapid Bolt, Absolute Zero Stun |
+| **#4040** | **Golden Alchemist** | Philosopher Cane | Alchemical Potions drop on kill, Gem Magnet, Elixir Shield |
+
+---
+
+## 🌐 Unified Web3 Architecture & Data Persistence
+
+The root portal (`index.html`) automatically links and shares player state across all games using `localStorage`:
+- `wiznerdz_wallet`: Synced Web3 wallet session address.
+- `wiznerdz_audio_muted`: Global sound mute/unmute preference.
+- `wiznerdz_leaderboard`: Arcane Dash speedrun records.
+- `wiznerdz_survivor_leaderboard`: Void Survivor high scores.
+- `wiznerdz_tower_leaderboard`: Tower of Archmage floor ascents.
+- `wiznerdz_achievements`: Unlocked badge IDs.
+- **Unified Profile System**: Aggregates cross-game metrics into a calculated **Global Arcane Master Rank** (*Novice $\rightarrow$ Adept $\rightarrow$ Archmage $\rightarrow$ Grand Magus Supreme*).
+
+---
+
+## 🚀 Local Development Setup
+
+No build step required! Simply run a local HTTP server:
 
 ```bash
-# Python
+# Python 3
 python -m http.server 8080
 
-# Node / NPX
+# Or Node.js
 npx serve .
 ```
 
-Then open `http://localhost:8080` in your web browser.
-
----
-
-## 🛠️ Adding New Games
-
-To add a new game to the suite:
-1. Create a dedicated folder under `games/<your-game-name>/` (e.g. `games/arcane-survivor/`).
-2. Include an `index.html` entrypoint and necessary game modules inside that directory.
-3. Add a launcher card to the main Arcade Hub in `/index.html`.
+Open your browser to:
+- **Arcade Portal**: `http://localhost:8080/index.html`
+- **Game 1 (Arcane Dash)**: `http://localhost:8080/games/arcane-dash/index.html`
+- **Game 2 (Void Survivor)**: `http://localhost:8080/games/void-survivor/index.html`
+- **Game 3 (Tower of Archmage)**: `http://localhost:8080/games/tower-of-archmage/index.html`
