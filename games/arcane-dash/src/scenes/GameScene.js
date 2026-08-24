@@ -82,8 +82,16 @@ export class GameScene extends Phaser.Scene {
         this.startTime = this.time.now;
         this.updateHUD();
 
+        // Start BGM on scene start / first interaction
+        soundFX.startBGM();
+        this.input.once('pointerdown', () => {
+            soundFX.init();
+            soundFX.startBGM();
+        });
+
         // Quick Restart
-        this.keys.r.on('down', () => {
+        this.input.keyboard.on('keydown-R', () => {
+            soundFX.stopBGM();
             this.scene.restart({ wizNerdId: this.selectedWizNerdId });
         });
 
@@ -497,6 +505,7 @@ export class GameScene extends Phaser.Scene {
             });
         }
 
+        soundFX.stopBGM();
         if (window.onGameVictory) {
             window.onGameVictory({
                 time: this.elapsedMs,
@@ -508,6 +517,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     onPlayerDied() {
+        soundFX.stopBGM();
         if (window.onGameOver) {
             window.onGameOver({
                 score: this.score,

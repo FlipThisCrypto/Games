@@ -4,11 +4,19 @@ class SoundEffects {
     constructor() {
         this.ctx = null;
         this.muted = localStorage.getItem('wiznerdz_audio_muted') === 'true';
+        this.bgmPlaying = false;
+        this.bgmTimer = null;
+        this.bgmStep = 0;
     }
 
     setMuted(value) {
         this.muted = !!value;
         localStorage.setItem('wiznerdz_audio_muted', this.muted ? 'true' : 'false');
+        if (this.muted) {
+            this.stopBGM();
+        } else if (!this.bgmPlaying) {
+            this.startBGM();
+        }
         return this.muted;
     }
 
@@ -25,6 +33,106 @@ class SoundEffects {
         }
         if (this.ctx && this.ctx.state === 'suspended') {
             this.ctx.resume();
+        }
+    }
+
+    startBGM() {
+        if (this.muted || this.bgmPlaying) return;
+        this.init();
+        if (!this.ctx) return;
+
+        this.bgmPlaying = true;
+        this.bgmStep = 0;
+
+        // Chiptune Melodic Loop Pattern (A Minor / F / C / G progression)
+        const melody = [
+            220, 0, 330, 220, 440, 330, 220, 330,
+            174, 0, 261, 174, 349, 261, 174, 261,
+            261, 0, 330, 261, 523, 330, 261, 330,
+            196, 0, 293, 196, 392, 293, 196, 293
+        ];
+        const bass = [
+            110, 110, 110, 110,
+            87, 87, 87, 87,
+            130, 130, 130, 130,
+            98, 98, 98, 98
+        ];
+
+        const stepDuration = 135; // ms per 16th note (~111 BPM)
+
+        this.bgmTimer = setInterval(() => {
+            if (!this.bgmPlaying || this.muted || !this.ctx) return;
+
+            const now = this.ctx.currentTime;
+            const noteIndex = this.bgmStep % melody.length;
+            const bassIndex = Math.floor(this.bgmStep / 2) % bass.length;
+            const freq = melody[noteIndex];
+            const bassFreq = bass[bassIndex];
+
+            // 1. Lead Melody Pulse
+            if (freq > 0) {
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq * 1.5, now);
+
+                gain.gain.setValueAtTime(0.04, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            }
+
+            // 2. Bassline Note (on even steps)
+            if (this.bgmStep % 2 === 0) {
+                const bOsc = this.ctx.createOscillator();
+                const bGain = this.ctx.createGain();
+                bOsc.type = 'triangle';
+                bOsc.frequency.setValueAtTime(bassFreq, now);
+
+                bGain.gain.setValueAtTime(0.07, now);
+                bGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+
+                bOsc.connect(bGain);
+                bGain.connect(this.ctx.destination);
+                bOsc.start(now);
+                bOsc.stop(now + 0.2);
+            }
+
+            // 3. Hi-Hat noise tick (on every 4th step)
+            if (this.bgmStep % 4 === 2) {
+                const bSize = this.ctx.sampleRate * 0.03;
+                const buf = this.ctx.createBuffer(1, bSize, this.ctx.sampleRate);
+                const d = buf.getChannelData(0);
+                for (let i = 0; i < bSize; i++) d[i] = Math.random() * 2 - 1;
+
+                const n = this.ctx.createBufferSource();
+                n.buffer = buf;
+                const f = this.ctx.createBiquadFilter();
+                f.type = 'highpass';
+                f.frequency.setValueAtTime(4000, now);
+
+                const g = this.ctx.createGain();
+                g.gain.setValueAtTime(0.03, now);
+                g.gain.exponentialRampToValueAtTime(0.001, now + 0.03);
+
+                n.connect(f);
+                f.connect(g);
+                g.connect(this.ctx.destination);
+                n.start(now);
+            }
+
+            this.bgmStep++;
+        }, stepDuration);
+    }
+
+    stopBGM() {
+        this.bgmPlaying = false;
+        if (this.bgmTimer) {
+            clearInterval(this.bgmTimer);
+            this.bgmTimer = null;
         }
     }
 
