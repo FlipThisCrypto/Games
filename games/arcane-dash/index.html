@@ -393,6 +393,68 @@
         .btn-restart:hover {
             transform: scale(1.05);
         }
+
+        /* Virtual Touch Controls Overlay */
+        .touch-controls {
+            position: absolute;
+            bottom: 12px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 16px;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .touch-dpad, .touch-actions {
+            display: flex;
+            gap: 12px;
+            pointer-events: auto;
+        }
+
+        .touch-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: rgba(31, 20, 53, 0.75);
+            border: 2px solid var(--neon-cyan);
+            color: #fff;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            touch-action: manipulation;
+            box-shadow: 0 0 12px rgba(0, 255, 255, 0.3);
+            transition: transform 0.1s, background 0.1s;
+        }
+
+        .touch-btn:active {
+            transform: scale(0.9);
+            background: rgba(0, 255, 255, 0.4);
+        }
+
+        .touch-btn.btn-action-jump {
+            background: rgba(46, 204, 113, 0.75);
+            border-color: var(--neon-green);
+        }
+
+        .touch-btn.btn-action-dash {
+            background: rgba(155, 81, 224, 0.75);
+            border-color: var(--neon-purple);
+        }
+
+        .touch-btn.btn-action-attack {
+            background: rgba(231, 76, 60, 0.75);
+            border-color: var(--neon-gold);
+        }
+
+        @media (min-width: 1024px) {
+            .touch-controls {
+                opacity: 0.85;
+            }
+        }
     </style>
 </head>
 <body>
@@ -479,9 +541,20 @@
                 <h2 style="color: var(--neon-red);">☠️ FALLEN WIZARD ☠️</h2>
                 <div class="modal-stats">
                     <p>Final Score: <span id="go-score" class="meta-highlight"></span></p>
-                    <p style="color: var(--text-dim); margin-top: 8px;">Collect Mana Crystals & blast foes with Charged Spells!</p>
-                </div>
                 <button id="btn-restart-go" class="btn-restart" style="background: linear-gradient(135deg, #e17055, #d63031); color: #fff;">TRY AGAIN (R)</button>
+            </div>
+        </div>
+
+        <!-- Virtual Touch Controls -->
+        <div class="touch-controls" id="touch-controls">
+            <div class="touch-dpad">
+                <button class="touch-btn" id="btn-touch-left" aria-label="Move Left">◀</button>
+                <button class="touch-btn" id="btn-touch-right" aria-label="Move Right">▶</button>
+            </div>
+            <div class="touch-actions">
+                <button class="touch-btn btn-action-dash" id="btn-touch-dash" aria-label="Dash">💨</button>
+                <button class="touch-btn btn-action-attack" id="btn-touch-attack" aria-label="Cast Spell">🪄</button>
+                <button class="touch-btn btn-action-jump" id="btn-touch-jump" aria-label="Jump">▲</button>
             </div>
         </div>
     </div>

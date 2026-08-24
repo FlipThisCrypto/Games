@@ -177,6 +177,45 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     // Restart Buttons
+    // Virtual Touch Controls Listeners
+    function bindTouch(id, inputKey, isPulse = false) {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        const start = (e) => {
+            e.preventDefault();
+            soundFX.init();
+            if (window.activeGameScene && window.activeGameScene.virtualInputs) {
+                window.activeGameScene.virtualInputs[inputKey] = true;
+                if (isPulse) {
+                    const pulseKey = 'just' + inputKey.charAt(0).toUpperCase() + inputKey.slice(1);
+                    window.activeGameScene.virtualInputs[pulseKey] = true;
+                }
+            }
+        };
+
+        const end = (e) => {
+            e.preventDefault();
+            if (window.activeGameScene && window.activeGameScene.virtualInputs) {
+                window.activeGameScene.virtualInputs[inputKey] = false;
+            }
+        };
+
+        el.addEventListener('touchstart', start, { passive: false });
+        el.addEventListener('touchend', end, { passive: false });
+        el.addEventListener('touchcancel', end, { passive: false });
+        el.addEventListener('mousedown', start);
+        el.addEventListener('mouseup', end);
+        el.addEventListener('mouseleave', end);
+    }
+
+    bindTouch('btn-touch-left', 'left');
+    bindTouch('btn-touch-right', 'right');
+    bindTouch('btn-touch-jump', 'jump', true);
+    bindTouch('btn-touch-dash', 'dash', true);
+    bindTouch('btn-touch-attack', 'attack');
+
+    // Restart Buttons
     const restartVic = document.getElementById('btn-restart-victory');
     if (restartVic) {
         restartVic.addEventListener('click', () => {

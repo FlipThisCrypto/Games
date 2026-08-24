@@ -133,8 +133,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.canDoubleJump = (this.metadata.id === '101'); // Pyromancer gets double jump
         }
 
-        // 1. DASH ABILITY (Shift or X)
-        const dashKeyJustDown = Phaser.Input.Keyboard.JustDown(keys.shift) || Phaser.Input.Keyboard.JustDown(keys.x);
+        // Check keyboard and virtual touch inputs
+        const vInputs = this.scene.virtualInputs || {};
+
+        // 1. DASH ABILITY (Shift or X or Touch Dash)
+        const dashKeyJustDown = Phaser.Input.Keyboard.JustDown(keys.shift) || Phaser.Input.Keyboard.JustDown(keys.x) || vInputs.justDash;
+        if (vInputs.justDash) vInputs.justDash = false; // consume single frame touch press
+
         if (dashKeyJustDown && time > this.lastDashTime + this.dashCooldown && !this.isDashing) {
             this.performDash(time);
         }
@@ -152,11 +157,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         // 3. HORIZONTAL MOVEMENT
         const moveSpeed = (keys.shift.isDown && this.metadata.id !== '2396' ? GAME_CONFIG.PLAYER.RUN_SPEED : GAME_CONFIG.PLAYER.WALK_SPEED) * this.speedBuff;
 
-        if (cursors.left.isDown || keys.a.isDown) {
+        if (cursors.left.isDown || keys.a.isDown || vInputs.left) {
             this.setVelocityX(-moveSpeed);
             this.facing = -1;
             this.setFlipX(true);
-        } else if (cursors.right.isDown || keys.d.isDown) {
+        } else if (cursors.right.isDown || keys.d.isDown || vInputs.right) {
             this.setVelocityX(moveSpeed);
             this.facing = 1;
             this.setFlipX(false);
@@ -165,8 +170,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
 
         // 4. JUMP, WALL-JUMP, DOUBLE-JUMP, & GLIDE
-        const jumpPressed = Phaser.Input.Keyboard.JustDown(cursors.up) || Phaser.Input.Keyboard.JustDown(keys.w) || Phaser.Input.Keyboard.JustDown(keys.space);
-        const jumpHeld = cursors.up.isDown || keys.w.isDown || keys.space.isDown;
+        const jumpPressed = Phaser.Input.Keyboard.JustDown(cursors.up) || Phaser.Input.Keyboard.JustDown(keys.w) || Phaser.Input.Keyboard.JustDown(keys.space) || vInputs.justJump;
+        const jumpHeld = cursors.up.isDown || keys.w.isDown || keys.space.isDown || vInputs.jump;
+        if (vInputs.justJump) vInputs.justJump = false;
 
         if (jumpPressed) {
             if (onGround) {
@@ -206,10 +212,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             this.isGliding = false;
         }
 
-        // 5. ATTACK & SPELL CHARGING (Z or Mouse Click)
+        // 5. ATTACK & SPELL CHARGING (Z or Mouse Click or Touch Attack)
         const attackKey = keys.z;
         const pointer = this.scene.input.activePointer;
-        const isAttackDown = attackKey.isDown || pointer.isDown;
+        const isAttackDown = attackKey.isDown || pointer.isDown || vInputs.attack;
 
         if (isAttackDown) {
             if (!this.isCharging) {

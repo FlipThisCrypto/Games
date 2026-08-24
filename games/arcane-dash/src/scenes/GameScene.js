@@ -19,6 +19,14 @@ export class GameScene extends Phaser.Scene {
         this.startTime = 0;
         this.levelCompleted = false;
         this.elapsedMs = 0;
+        this.virtualInputs = {
+            left: false,
+            right: false,
+            jump: false,
+            justJump: false,
+            attack: false,
+            justDash: false
+        };
     }
 
     create() {
