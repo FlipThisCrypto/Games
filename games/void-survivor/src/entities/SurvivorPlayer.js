@@ -1,6 +1,7 @@
 // Survivor Player Entity
 import { SURVIVOR_CONFIG } from '../config.js';
 import { soundFX } from '../utils/soundFX.js';
+import { SurvivorFamiliar } from './SurvivorFamiliar.js';
 
 export class SurvivorPlayer extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, metadata) {
@@ -30,6 +31,9 @@ export class SurvivorPlayer extends Phaser.Physics.Arcade.Sprite {
         // Orbiting Crystal Visuals
         this.orbitAngle = 0;
         this.orbitSprites = [];
+
+        // Autonomous Familiar Pet
+        this.familiar = (metadata.id === '1337') ? new SurvivorFamiliar(scene, this) : null;
 
         this.body.setSize(20, 24);
         this.body.setOffset(6, 4);
@@ -129,5 +133,10 @@ export class SurvivorPlayer extends Phaser.Physics.Arcade.Sprite {
             spr.x = this.x + Math.cos(angle) * radius;
             spr.y = this.y + Math.sin(angle) * radius;
         });
+
+        // Update Familiar
+        if (this.familiar && this.familiar.active) {
+            this.familiar.update(this.scene.time.now);
+        }
     }
 }
