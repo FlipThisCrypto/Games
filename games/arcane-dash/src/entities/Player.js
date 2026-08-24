@@ -329,6 +329,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         soundFX.playChargedShot();
         this.scene.cameras.main.shake(200, 0.01);
 
+        if (window.unlockAchievement) {
+            window.unlockAchievement('mega_caster');
+        }
+
         this.isAttacking = true;
         this.setTexture(`wiznerd_${this.metadata.id}_attack`);
         this.scene.time.delayedCall(220, () => {

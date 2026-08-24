@@ -94,6 +94,10 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.isDead = true;
         this.scene.addScore(200);
 
+        if (window.unlockAchievement) {
+            window.unlockAchievement('first_blood');
+        }
+
         // Check if player has Alchemist class for potion drop
         if (this.scene.player && this.scene.player.metadata.class === 'Alchemist') {
             if (Math.random() < 0.65) {
@@ -294,6 +298,15 @@ export class ArcaneSentry extends Enemy {
         const orb = new EnemyProjectile(this.scene, this.x, this.y, vx, vy);
         if (this.scene.enemyProjectiles) {
             this.scene.enemyProjectiles.add(orb);
+        }
+    }
+
+    die(fromStomp = false) {
+        if (this.isDead) return;
+        super.die(fromStomp);
+        this.scene.addScore(300); // bonus score for turret
+        if (window.unlockAchievement) {
+            window.unlockAchievement('sentry_buster');
         }
     }
 }

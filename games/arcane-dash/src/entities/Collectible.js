@@ -174,6 +174,10 @@ export class AlchemistPotion extends Phaser.Physics.Arcade.Sprite {
         soundFX.playShardCollect();
         player.applyPotionBuff(this.potionType);
 
+        if (window.unlockAchievement) {
+            window.unlockAchievement('potion_master');
+        }
+
         // Burst particles
         const burst = this.scene.add.particles(this.x, this.y, 'particle_sparkle', {
             speed: { min: 50, max: 120 },

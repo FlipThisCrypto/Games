@@ -160,6 +160,79 @@ function renderLeaderboard() {
     listEl.innerHTML = html;
 }
 
+// Wizard Achievements System
+export const ACHIEVEMENTS_DEF = [
+    { id: 'first_blood', name: 'First Arcane Strike', desc: 'Defeat your first enemy in combat', icon: '⚔️' },
+    { id: 'shard_master', name: 'Grand Magus Collector', desc: 'Collect all 3 hidden Spell Shards in a single run', icon: '💎' },
+    { id: 'mega_caster', name: 'Ley-Line Overload', desc: 'Release a fully charged Mega Spell attack', icon: '⚡' },
+    { id: 'sentry_buster', name: 'Siege Breaker', desc: 'Destroy an Arcane Sentry Turret', icon: '🛡️' },
+    { id: 'potion_master', name: 'Alchemical Surge', desc: 'Collect an Alchemist Potion buff', icon: '🧪' },
+    { id: 'portal_walker', name: 'Archmage Ascendant', desc: 'Clear the stage and step into the Goal Portal', icon: '🌟' }
+];
+
+function getUnlockedAchievements() {
+    try {
+        const raw = localStorage.getItem('wiznerdz_achievements');
+        return raw ? JSON.parse(raw) : [];
+    } catch {
+        return [];
+    }
+}
+
+window.unlockAchievement = function (achId) {
+    const unlocked = getUnlockedAchievements();
+    if (unlocked.includes(achId)) return; // already unlocked
+
+    const def = ACHIEVEMENTS_DEF.find(a => a.id === achId);
+    if (!def) return;
+
+    unlocked.push(achId);
+    localStorage.setItem('wiznerdz_achievements', JSON.stringify(unlocked));
+
+    // Show celebratory toast
+    const toast = document.getElementById('achievement-toast');
+    const toastTitle = document.getElementById('toast-title');
+    if (toast && toastTitle) {
+        toastTitle.textContent = `${def.icon} ${def.name}`;
+        toast.style.transform = 'translateX(-50%) translateY(0px)';
+        soundFX.playShardCollect();
+        setTimeout(() => {
+            toast.style.transform = 'translateX(-50%) translateY(-60px)';
+        }, 3200);
+    }
+};
+
+function renderAchievements() {
+    const listEl = document.getElementById('achievements-list');
+    if (!listEl) return;
+
+    const unlocked = getUnlockedAchievements();
+    let html = '';
+
+    ACHIEVEMENTS_DEF.forEach(ach => {
+        const isUnlocked = unlocked.includes(ach.id);
+        const icon = isUnlocked ? ach.icon : '🔒';
+        const borderColor = isUnlocked ? 'var(--neon-gold)' : 'rgba(255,255,255,0.15)';
+        const titleColor = isUnlocked ? 'var(--neon-cyan)' : 'var(--text-dim)';
+        const statusBadge = isUnlocked ? '<span style="color:#2ecc71; font-weight:bold;">UNLOCKED ✨</span>' : '<span style="color:#7f8c8d;">LOCKED</span>';
+
+        html += `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border: 1px solid ${borderColor}; border-radius: 6px; background: rgba(20,12,35,0.7);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 20px;">${icon}</span>
+                    <div>
+                        <div style="font-weight: bold; color: ${titleColor};">${ach.name}</div>
+                        <div style="font-size: 11px; color: var(--text-dim);">${ach.desc}</div>
+                    </div>
+                </div>
+                <div style="font-size: 10px;">${statusBadge}</div>
+            </div>
+        `;
+    });
+
+    listEl.innerHTML = html;
+}
+
 // Victory Callback
 window.onGameVictory = function (data) {
     const totalSeconds = Math.floor(data.time / 1000);
@@ -332,6 +405,24 @@ window.addEventListener('DOMContentLoaded', () => {
     if (closeBoardBtn) {
         closeBoardBtn.addEventListener('click', () => {
             if (boardModal) boardModal.style.display = 'none';
+        });
+    }
+
+    // Achievements Modal Listeners
+    const openAchBtn = document.getElementById('btn-open-achievements');
+    const closeAchBtn = document.getElementById('btn-close-achievements');
+    const achModal = document.getElementById('achievements-modal');
+
+    if (openAchBtn) {
+        openAchBtn.addEventListener('click', () => {
+            renderAchievements();
+            if (achModal) achModal.style.display = 'flex';
+        });
+    }
+
+    if (closeAchBtn) {
+        closeAchBtn.addEventListener('click', () => {
+            if (achModal) achModal.style.display = 'none';
         });
     }
 

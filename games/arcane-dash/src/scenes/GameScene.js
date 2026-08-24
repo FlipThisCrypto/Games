@@ -563,6 +563,14 @@ export class GameScene extends Phaser.Scene {
         this.addScore(1000);
         this.showCombatText(this.player.x, this.player.y - 20, '💎 +1000', '#00ffff', '16px');
         this.triggerScreenShake(0.008, 100);
+
+        // Check if all 3 shards collected
+        if (this.shardsCollected.every(Boolean)) {
+            if (window.unlockAchievement) {
+                window.unlockAchievement('shard_master');
+            }
+        }
+
         this.updateHUD();
     }
 
@@ -578,6 +586,10 @@ export class GameScene extends Phaser.Scene {
         soundFX.playVictory();
         this.player.setVelocity(0, 0);
         this.player.body.setAllowGravity(false);
+
+        if (window.unlockAchievement) {
+            window.unlockAchievement('portal_walker');
+        }
 
         for (let i = 0; i < 6; i++) {
             this.time.delayedCall(i * 180, () => {
