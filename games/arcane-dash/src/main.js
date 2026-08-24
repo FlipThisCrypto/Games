@@ -102,6 +102,64 @@ window.updateGameHUD = function (state) {
     }
 };
 
+// Leaderboard Storage & Rendering
+function getLeaderboard() {
+    try {
+        const raw = localStorage.getItem('wiznerdz_leaderboard');
+        return raw ? JSON.parse(raw) : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveLeaderboardRecord(entry) {
+    const board = getLeaderboard();
+    board.push(entry);
+    // Sort by fastest time, then highest score
+    board.sort((a, b) => a.time - b.time || b.score - a.score);
+    const trimmed = board.slice(0, 10);
+    localStorage.setItem('wiznerdz_leaderboard', JSON.stringify(trimmed));
+    return trimmed;
+}
+
+function renderLeaderboard() {
+    const listEl = document.getElementById('leaderboard-list');
+    if (!listEl) return;
+    const board = getLeaderboard();
+
+    if (board.length === 0) {
+        listEl.innerHTML = '<div style="color: var(--text-dim); text-align: center; padding: 12px;">No speedruns recorded yet. Clear the stage to set the first record!</div>';
+        return;
+    }
+
+    let html = '';
+    board.forEach((r, idx) => {
+        const medals = ['🥇', '🥈', '🥉'];
+        const rankBadge = medals[idx] || `#${idx + 1}`;
+        const totalSec = Math.floor(r.time / 1000);
+        const mins = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const secs = (totalSec % 60).toString().padStart(2, '0');
+        const ms = Math.floor((r.time % 1000) / 10).toString().padStart(2, '0');
+
+        html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 4px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 14px; font-weight: bold; width: 22px;">${rankBadge}</span>
+                    <div>
+                        <div style="font-weight: bold; color: var(--neon-cyan);">${r.wizNerdName}</div>
+                        <div style="font-size: 10px; color: var(--text-dim);">${r.date || 'Arcane Run'}</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="color: var(--neon-gold); font-weight: bold;">⏱️ ${mins}:${secs}.${ms}</div>
+                    <div style="font-size: 10px; color: var(--neon-green);">🏆 ${r.score} pts | 💎 ${r.shards}/3</div>
+                </div>
+            </div>
+        `;
+    });
+    listEl.innerHTML = html;
+}
+
 // Victory Callback
 window.onGameVictory = function (data) {
     const totalSeconds = Math.floor(data.time / 1000);
@@ -109,11 +167,26 @@ window.onGameVictory = function (data) {
     const seconds = (totalSeconds % 60).toString().padStart(2, '0');
     const millis = Math.floor((data.time % 1000) / 10).toString().padStart(2, '0');
 
+    const boardBefore = getLeaderboard();
+    const isNewBest = boardBefore.length === 0 || data.time < boardBefore[0].time;
+
+    saveLeaderboardRecord({
+        time: data.time,
+        score: data.score,
+        shards: data.shards,
+        wizNerdId: data.wizNerd.id,
+        wizNerdName: data.wizNerd.name,
+        date: new Date().toLocaleDateString()
+    });
+
     const modal = document.getElementById('victory-modal');
     document.getElementById('vic-time').textContent = `${minutes}:${seconds}.${millis}`;
     document.getElementById('vic-score').textContent = data.score;
     document.getElementById('vic-shards').textContent = `${data.shards} / 3`;
     document.getElementById('vic-wiznerd').textContent = data.wizNerd.name;
+
+    const newRec = document.getElementById('vic-new-record');
+    if (newRec) newRec.style.display = isNewBest ? 'block' : 'none';
 
     if (modal) modal.style.display = 'flex';
 };
@@ -233,6 +306,32 @@ window.addEventListener('DOMContentLoaded', () => {
             if (window.activeGameScene) {
                 window.activeGameScene.scene.restart({ wizNerdId: window.activeGameScene.selectedWizNerdId });
             }
+        });
+    }
+
+    // Leaderboard Modal Listeners
+    const openBoardBtn = document.getElementById('btn-open-leaderboard');
+    const closeBoardBtn = document.getElementById('btn-close-leaderboard');
+    const viewBoardVicBtn = document.getElementById('btn-view-board-vic');
+    const boardModal = document.getElementById('leaderboard-modal');
+
+    if (openBoardBtn) {
+        openBoardBtn.addEventListener('click', () => {
+            renderLeaderboard();
+            if (boardModal) boardModal.style.display = 'flex';
+        });
+    }
+
+    if (viewBoardVicBtn) {
+        viewBoardVicBtn.addEventListener('click', () => {
+            renderLeaderboard();
+            if (boardModal) boardModal.style.display = 'flex';
+        });
+    }
+
+    if (closeBoardBtn) {
+        closeBoardBtn.addEventListener('click', () => {
+            if (boardModal) boardModal.style.display = 'none';
         });
     }
 

@@ -510,6 +510,10 @@
                 <span id="shard-2" class="shard inactive">💎</span>
             </div>
         </div>
+        <div class="hud-item" style="cursor: pointer;" id="btn-open-leaderboard" title="View Speedrun Hall of Fame">
+            <span class="hud-label">Leaderboard</span>
+            <span style="font-size: 13px; color: var(--neon-gold); font-weight: bold; margin-top: 2px;">🏆 RECORDS</span>
+        </div>
         <div class="hud-item">
             <span class="hud-label">Class & Weapon</span>
             <div style="display: flex; gap: 4px; margin-top: 2px;">
@@ -525,13 +529,29 @@
         <div id="victory-modal" class="game-modal">
             <div class="modal-box">
                 <h2>✨ ARCANE STAGE CLEAR! ✨</h2>
+                <div id="vic-new-record" style="display:none; color: var(--neon-gold); font-weight: 900; font-size: 14px; margin-bottom: 8px; text-shadow: 0 0 10px #f1c40f;">🌟 NEW PERSONAL BEST RECORD! 🌟</div>
                 <div class="modal-stats">
                     <p>⚡ Final Time: <span id="vic-time" class="meta-highlight"></span></p>
                     <p>🏆 Total Score: <span id="vic-score" class="meta-highlight"></span></p>
                     <p>💎 Spell Shards: <span id="vic-shards" class="meta-highlight"></span></p>
                     <p>🧙‍♂️ WizNerd: <span id="vic-wiznerd" class="meta-highlight"></span></p>
                 </div>
-                <button id="btn-restart-victory" class="btn-restart">PLAY AGAIN (R)</button>
+                <div style="display: flex; gap: 8px; justify-content: center; margin-top: 10px;">
+                    <button id="btn-restart-victory" class="btn-restart">PLAY AGAIN (R)</button>
+                    <button id="btn-view-board-vic" class="btn-restart" style="background: linear-gradient(135deg, #f39c12, #f1c40f); color: #0c0814;">🏆 RANKS</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Modal -->
+        <div id="leaderboard-modal" class="game-modal">
+            <div class="modal-box" style="max-width: 480px;">
+                <h2>🏆 HALL OF ARCHMAGI</h2>
+                <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px;">Top Speedrun Times & High Scores</p>
+                <div id="leaderboard-list" style="text-align: left; font-size: 12px; max-height: 220px; overflow-y: auto; margin-bottom: 16px; border: 1px solid rgba(0,255,255,0.2); border-radius: 6px; padding: 8px; background: rgba(0,0,0,0.3);">
+                    <!-- Dynamic leaderboard rows -->
+                </div>
+                <button id="btn-close-leaderboard" class="btn-restart" style="background: #6c5ce7; color: #fff;">CLOSE</button>
             </div>
         </div>
 
@@ -541,6 +561,7 @@
                 <h2 style="color: var(--neon-red);">☠️ FALLEN WIZARD ☠️</h2>
                 <div class="modal-stats">
                     <p>Final Score: <span id="go-score" class="meta-highlight"></span></p>
+                </div>
                 <button id="btn-restart-go" class="btn-restart" style="background: linear-gradient(135deg, #e17055, #d63031); color: #fff;">TRY AGAIN (R)</button>
             </div>
         </div>
