@@ -98,18 +98,29 @@ export class Projectile extends Phaser.Physics.Arcade.Sprite {
         if (this.projType === 'root_bolt') {
             soundFX.playFreeze();
             enemy.freezeIntoPlatform(this.config.freezeDuration || 4000);
+            if (this.scene.showCombatText) this.scene.showCombatText(enemy.x, enemy.y - 14, '❄️ FROZEN!', '#00ffff', '13px');
             this.explode();
         } else if (this.projType === 'inferno_blast') {
             enemy.takeDamage(4);
             this.createImpactParticles(0xe74c3c);
+            if (this.scene.triggerScreenShake) this.scene.triggerScreenShake(0.014, 150);
+            if (this.scene.triggerHitStop) this.scene.triggerHitStop(40);
+            if (this.scene.showCombatText) this.scene.showCombatText(enemy.x, enemy.y - 14, '💥 INFERNO! -4', '#ff4757', '15px');
         } else if (this.projType === 'mega_crystal_beam') {
             enemy.takeDamage(3);
             this.createImpactParticles(0x00ffff);
+            if (this.scene.triggerScreenShake) this.scene.triggerScreenShake(0.012, 130);
+            if (this.scene.triggerHitStop) this.scene.triggerHitStop(35);
+            if (this.scene.showCombatText) this.scene.showCombatText(enemy.x, enemy.y - 14, '⚡ BEAM! -3', '#00ffff', '15px');
         } else if (this.projType === 'void_nova') {
             enemy.takeDamage(3);
             this.createImpactParticles(0x9b51e0);
+            if (this.scene.triggerScreenShake) this.scene.triggerScreenShake(0.012, 130);
+            if (this.scene.triggerHitStop) this.scene.triggerHitStop(35);
+            if (this.scene.showCombatText) this.scene.showCombatText(enemy.x, enemy.y - 14, '🌌 VOID! -3', '#a29bfe', '15px');
         } else {
             enemy.takeDamage(this.damage);
+            if (this.scene.showCombatText) this.scene.showCombatText(enemy.x, enemy.y - 14, `-${this.damage}`, '#ffd700', '12px');
             if (!this.isPiercing) this.explode();
         }
     }

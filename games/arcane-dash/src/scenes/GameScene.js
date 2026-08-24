@@ -527,9 +527,42 @@ export class GameScene extends Phaser.Scene {
         }
     }
 
+    triggerScreenShake(intensity = 0.012, duration = 140) {
+        this.cameras.main.shake(duration, intensity);
+    }
+
+    triggerHitStop(duration = 40) {
+        this.physics.world.pause();
+        this.time.delayedCall(duration, () => {
+            this.physics.world.resume();
+        });
+    }
+
+    showCombatText(x, y, text, color = '#ffd700', fontSize = '13px') {
+        const txt = this.add.text(x, y - 10, text, {
+            fontFamily: '"Courier New", monospace',
+            fontSize: fontSize,
+            color: color,
+            fontStyle: 'bold',
+            stroke: '#000',
+            strokeThickness: 3
+        }).setOrigin(0.5).setDepth(30);
+
+        this.tweens.add({
+            targets: txt,
+            y: txt.y - 28,
+            alpha: 0,
+            duration: 650,
+            ease: 'Power1',
+            onComplete: () => txt.destroy()
+        });
+    }
+
     onCollectShard(index) {
         this.shardsCollected[index] = true;
         this.addScore(1000);
+        this.showCombatText(this.player.x, this.player.y - 20, '💎 +1000', '#00ffff', '16px');
+        this.triggerScreenShake(0.008, 100);
         this.updateHUD();
     }
 

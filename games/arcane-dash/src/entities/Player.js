@@ -84,6 +84,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.hp = Math.min(this.maxHp, this.hp + 1);
         this.mana = this.maxMana;
         this.scene.addScore(500);
+        this.scene.showCombatText(this.x, this.y - 20, '✨ POWER UP! +500', '#00ffff', '15px');
+        this.scene.triggerScreenShake(0.008, 100);
         this.scene.updateHUD();
 
         // Magic sparkle aura
@@ -98,14 +100,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
 
     heal(amount = 1) {
         this.hp = Math.min(this.maxHp, this.hp + amount);
+        this.scene.showCombatText(this.x, this.y - 20, `+${amount} HP`, '#2ecc71', '14px');
         this.scene.updateHUD();
     }
 
     applyPotionBuff(type) {
         if (type === 'speed') {
             this.speedBuff = 1.45;
+            this.scene.showCombatText(this.x, this.y - 20, '⚡ SPEED BOOST!', '#00ffff', '14px');
         } else if (type === 'jump') {
             this.jumpBuff = 1.3;
+            this.scene.showCombatText(this.x, this.y - 20, '🦘 HIGH JUMP!', '#2ecc71', '14px');
         }
 
         if (this.potionTimer) this.potionTimer.remove();
@@ -393,6 +398,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         soundFX.playHurt();
         this.hp -= 1;
         this.scene.updateHUD();
+        this.scene.showCombatText(this.x, this.y - 20, '-1 HP', '#ff3344', '15px');
+        this.scene.triggerScreenShake(0.015, 160);
 
         if (this.hp <= 0) {
             this.die();
