@@ -141,14 +141,26 @@ window.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Connect Wallet Button Mock
+    // Connect Wallet Button & localStorage persistence
     const walletBtn = document.getElementById('wallet-btn');
+    const savedWallet = localStorage.getItem('wiznerdz_wallet');
+    const savedChar = localStorage.getItem('wiznerdz_active_char');
+
+    if (savedWallet && walletBtn) {
+        walletBtn.textContent = `${savedWallet} (Connected)`;
+        walletBtn.classList.add('connected');
+    }
+
     if (walletBtn) {
         walletBtn.addEventListener('click', () => {
-            walletBtn.textContent = '0x71C...9F4 (Connected)';
+            const mockAddress = '0x71C...9F4';
+            localStorage.setItem('wiznerdz_wallet', mockAddress);
+            walletBtn.textContent = `${mockAddress} (Connected)`;
             walletBtn.classList.add('connected');
-            if (selector) selector.value = '2396';
-            applyWizNerdSelection('2396');
+            if (selector) {
+                selector.value = '2396';
+                applyWizNerdSelection('2396');
+            }
         });
     }
 

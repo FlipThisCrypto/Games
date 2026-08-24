@@ -471,9 +471,17 @@
 
     <script>
         const btn = document.getElementById('connect-wallet-btn');
+        const saved = localStorage.getItem('wiznerdz_wallet');
+        if (saved && btn) {
+            btn.textContent = `${saved} (Connected)`;
+            btn.style.background = '#27ae60';
+        }
+
         if (btn) {
             btn.addEventListener('click', () => {
-                btn.textContent = '0x71C...9F4 (Connected)';
+                const mockAddr = '0x71C...9F4';
+                localStorage.setItem('wiznerdz_wallet', mockAddr);
+                btn.textContent = `${mockAddr} (Connected)`;
                 btn.style.background = '#27ae60';
             });
         }
