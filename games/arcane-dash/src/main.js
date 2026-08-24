@@ -3,6 +3,7 @@ import { GAME_CONFIG } from './config.js';
 import { PreloadScene } from './scenes/PreloadScene.js';
 import { GameScene } from './scenes/GameScene.js';
 import { WIZNERD_PRESETS, getWizNerdById } from './utils/nftMetadata.js';
+import { soundFX } from './utils/soundFX.js';
 
 const phaserConfig = {
     type: Phaser.AUTO,
@@ -151,18 +152,29 @@ window.addEventListener('DOMContentLoaded', () => {
         walletBtn.classList.add('connected');
     }
 
-    if (walletBtn) {
-        walletBtn.addEventListener('click', () => {
-            const mockAddress = '0x71C...9F4';
-            localStorage.setItem('wiznerdz_wallet', mockAddress);
-            walletBtn.textContent = `${mockAddress} (Connected)`;
-            walletBtn.classList.add('connected');
-            if (selector) {
-                selector.value = '2396';
-                applyWizNerdSelection('2396');
-            }
+    // Sound Mute Toggle Button & Keyboard Hotkey (M)
+    const soundBtn = document.getElementById('sound-btn');
+    function updateSoundUI() {
+        if (soundBtn) {
+            soundBtn.textContent = soundFX.muted ? '🔇' : '🔊';
+            soundBtn.style.opacity = soundFX.muted ? '0.6' : '1';
+        }
+    }
+    updateSoundUI();
+
+    if (soundBtn) {
+        soundBtn.addEventListener('click', () => {
+            soundFX.toggleMute();
+            updateSoundUI();
         });
     }
+
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'm' || e.key === 'M') {
+            soundFX.toggleMute();
+            updateSoundUI();
+        }
+    });
 
     // Restart Buttons
     const restartVic = document.getElementById('btn-restart-victory');

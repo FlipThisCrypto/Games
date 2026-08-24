@@ -3,7 +3,17 @@
 class SoundEffects {
     constructor() {
         this.ctx = null;
-        this.muted = false;
+        this.muted = localStorage.getItem('wiznerdz_audio_muted') === 'true';
+    }
+
+    setMuted(value) {
+        this.muted = !!value;
+        localStorage.setItem('wiznerdz_audio_muted', this.muted ? 'true' : 'false');
+        return this.muted;
+    }
+
+    toggleMute() {
+        return this.setMuted(!this.muted);
     }
 
     init() {
