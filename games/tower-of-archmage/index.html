@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WizNerdz: Tower of the Archmage - Turn-Based RPG</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏰</text></svg>">
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #08040d;
+            --panel-bg: rgba(20, 10, 32, 0.94);
+            --neon-cyan: #00ffff;
+            --neon-purple: #9b51e0;
+            --neon-green: #2ecc71;
+            --neon-gold: #f1c40f;
+            --neon-red: #ff3344;
+            --text-main: #f5f6fa;
+            --text-dim: #a4b0be;
+            --border-glow: 1px solid rgba(155, 81, 224, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 12px;
+            overflow-x: hidden;
+        }
+
+        header {
+            width: 100%;
+            max-width: 720px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: var(--panel-bg);
+            border: var(--border-glow);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            margin-bottom: 8px;
+            gap: 10px;
+        }
+
+        .title-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .title-area h1 {
+            font-size: 15px;
+            color: var(--neon-gold);
+            letter-spacing: 1px;
+        }
+
+        .web3-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        select {
+            background: #190e2b;
+            color: #fff;
+            border: 1px solid var(--neon-purple);
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-web3 {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Battle HUD */
+        .hud-bar {
+            width: 100%;
+            max-width: 720px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel-bg);
+            border: var(--border-glow);
+            border-radius: 8px;
+            padding: 8px 16px;
+            margin-bottom: 8px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .hud-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hud-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .bar-container {
+            width: 140px;
+            height: 12px;
+            background: #110822;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 2px;
+        }
+
+        .bar-fill-hp {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #2ed573, #7bed9f);
+            transition: width 0.2s;
+        }
+
+        .bar-fill-boss {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff4757, #ff6b81);
+            transition: width 0.2s;
+        }
+
+        .bar-fill-mana {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #0984e3);
+            transition: width 0.2s;
+        }
+
+        .btn-ult {
+            background: #2d1b4e;
+            color: #7f8c8d;
+            border: 1px solid #7f8c8d;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: not-allowed;
+            transition: all 0.2s;
+        }
+
+        .btn-ult.ready {
+            background: linear-gradient(135deg, #f1c40f, #e67e22);
+            color: #08040d;
+            border: 1px solid var(--neon-gold);
+            cursor: pointer;
+            box-shadow: 0 0 16px rgba(241, 196, 15, 0.6);
+            transform: scale(1.05);
+        }
+
+        /* Canvas Container */
+        #game-canvas-container {
+            width: 720px;
+            height: 640px;
+            position: relative;
+            background: #000;
+            border: 2px solid var(--neon-purple);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 24px rgba(155, 81, 224, 0.35);
+        }
+
+        .game-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(8, 4, 13, 0.92);
+            backdrop-filter: blur(4px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .modal-box {
+            background: #1b0e2f;
+            border: 2px solid var(--neon-gold);
+            padding: 24px 32px;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(241, 196, 15, 0.4);
+            max-width: 440px;
+            width: 100%;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            color: #08040d;
+            font-weight: 900;
+            border: none;
+            padding: 10px 24px;
+            font-size: 14px;
+            font-family: inherit;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 14px;
+        }
+
+        /* NFT Lore Card */
+        .meta-card {
+            width: 100%;
+            max-width: 720px;
+            background: var(--panel-bg);
+            border: var(--border-glow);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .avatar-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 6px;
+            border: 2px solid var(--neon-gold);
+            overflow: hidden;
+            background: #000;
+            flex-shrink: 0;
+        }
+
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .meta-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            width: 100%;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header & Web3 Bar -->
+    <header>
+        <div class="title-area">
+            <a href="../../index.html" style="color: var(--neon-cyan); text-decoration: none; font-size: 13px; font-weight: bold; padding: 4px 8px; border: 1px solid rgba(0,255,255,0.3); border-radius: 4px; background: rgba(0,0,0,0.3); margin-right: 6px;">◀ HUB</a>
+            <span>🏰</span>
+            <h1>WIZNERDZ: TOWER OF THE ARCHMAGE</h1>
+        </div>
+        <div class="web3-controls">
+            <label for="wiznerd-select" style="font-size: 11px; color: var(--text-dim);">WIZNERD:</label>
+            <select id="wiznerd-select"></select>
+            <button id="wallet-btn" class="btn-web3">Connect Wallet</button>
+            <button id="sound-btn" class="btn-web3" style="background: #2d1b4e; border: 1px solid var(--neon-cyan); padding: 6px 10px;" title="Toggle Sound (M)">🔊</button>
+        </div>
+    </header>
+
+    <!-- Battle HUD -->
+    <div class="hud-bar">
+        <div class="hud-item">
+            <span class="hud-label">Dungeon Progress</span>
+            <span id="hud-floor" style="font-size: 16px; font-weight: 900; color: var(--neon-gold);">FLOOR 1</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">Player Health</span>
+            <div class="bar-container">
+                <div id="player-hp-fill" class="bar-fill-hp"></div>
+            </div>
+            <span id="player-hp-text" style="font-size: 9px; color: var(--neon-green); margin-top: 1px;">180 / 180 HP</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-label">Arcane Mana</span>
+            <div class="bar-container">
+                <div id="player-mana-fill" class="bar-fill-mana"></div>
+            </div>
+            <span id="player-mana-text" style="font-size: 9px; color: var(--neon-cyan); margin-top: 1px;">0 / 100 MANA</span>
+        </div>
+        <button id="btn-cast-ult" class="btn-ult" disabled>⚡ ULTIMATE (0/100)</button>
+        <div class="hud-item">
+            <span id="hud-boss-name" class="hud-label" style="color: var(--neon-red);">Floor Boss</span>
+            <div class="bar-container">
+                <div id="boss-hp-fill" class="bar-fill-boss"></div>
+            </div>
+            <span id="boss-hp-text" style="font-size: 9px; color: var(--neon-red); margin-top: 1px;">280 / 280 HP</span>
+        </div>
+    </div>
+
+    <!-- Phaser Canvas Container -->
+    <div id="game-canvas-container">
+        <!-- Victory Modal -->
+        <div id="victory-modal" class="game-modal">
+            <div class="modal-box">
+                <h2 id="vic-title" style="color: var(--neon-gold); margin-bottom: 8px;">✨ TOWER FLOOR CLEARED! ✨</h2>
+                <div style="font-size: 14px; line-height: 1.8; margin: 12px 0;">
+                    <p>🏆 <span id="vic-floor" style="color: var(--neon-cyan); font-weight: bold;"></span></p>
+                    <p>🧙‍♂️ Archmage: <span id="vic-wiznerd" style="color: #fff; font-weight: bold;"></span></p>
+                </div>
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <button id="btn-next-floor" class="btn-restart">ASCEND NEXT FLOOR ⬆️</button>
+                    <button id="btn-restart-vic" class="btn-restart" style="background: #6c5ce7; color: #fff;">PLAY FROM FLOOR 1</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div id="gameover-modal" class="game-modal">
+            <div class="modal-box" style="border-color: var(--neon-red);">
+                <h2 style="color: var(--neon-red); margin-bottom: 8px;">☠️ OVERWHELMED BY THE TOWER ☠️</h2>
+                <div style="font-size: 14px; line-height: 1.8; margin: 12px 0;">
+                    <p>🏰 <span id="go-floor" style="color: var(--neon-gold); font-weight: bold;"></span></p>
+                    <p>🧙‍♂️ WizNerd: <span id="go-wiznerd" style="color: #fff; font-weight: bold;"></span></p>
+                </div>
+                <button id="btn-restart-go" class="btn-restart" style="background: linear-gradient(135deg, #e17055, #d63031); color: #fff;">RETRY FLOOR 1</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active NFT Metadata Info Card -->
+    <div class="meta-card">
+        <div class="avatar-box">
+            <img id="wiznerd-avatar-img" src="./assets/avatars/wiznerd_crimson_staff.png" alt="WizNerd Avatar">
+        </div>
+        <div class="meta-info-grid">
+            <div>
+                <h4 style="color: var(--neon-cyan); font-size: 11px;">📜 Archmage Lore</h4>
+                <p id="wiznerd-desc" style="color: var(--text-dim);">Loading...</p>
+            </div>
+            <div>
+                <h4 style="color: var(--neon-gold); font-size: 11px;">⚡ Tower Special Skill</h4>
+                <p id="wiznerd-skill" style="color: #fff;">-</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>
