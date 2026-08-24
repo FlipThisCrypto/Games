@@ -306,6 +306,10 @@
             </div>
             <span id="player-mana-text" style="font-size: 9px; color: var(--neon-cyan); margin-top: 1px;">0 / 100 MANA</span>
         </div>
+        <div class="hud-item" style="cursor: pointer;" id="btn-open-tower-board" title="View Tower Hall of Fame">
+            <span class="hud-label">Leaderboard</span>
+            <span style="font-size: 13px; color: var(--neon-gold); font-weight: bold; margin-top: 2px;">🏆 RECORDS</span>
+        </div>
         <button id="btn-cast-ult" class="btn-ult" disabled>⚡ ULTIMATE (0/100)</button>
         <div class="hud-item">
             <span id="hud-boss-name" class="hud-label" style="color: var(--neon-red);">Floor Boss</span>
@@ -318,6 +322,18 @@
 
     <!-- Phaser Canvas Container -->
     <div id="game-canvas-container">
+        <!-- Leaderboard Modal -->
+        <div id="tower-leaderboard-modal" class="game-modal">
+            <div class="modal-box" style="max-width: 480px;">
+                <h2 style="color: var(--neon-gold); margin-bottom: 8px;">🏆 TOWER ASCENT HALL OF FAME</h2>
+                <p style="font-size: 12px; color: var(--text-dim); margin-bottom: 12px;">Highest Tower Floors Conquered</p>
+                <div id="tower-leaderboard-list" style="text-align: left; font-size: 12px; max-height: 220px; overflow-y: auto; margin-bottom: 16px; border: 1px solid rgba(0,255,255,0.2); border-radius: 6px; padding: 8px; background: rgba(0,0,0,0.3);">
+                    <!-- Dynamic leaderboard rows -->
+                </div>
+                <button id="btn-close-tower-board" class="btn-restart" style="background: #6c5ce7; color: #fff;">CLOSE</button>
+            </div>
+        </div>
+
         <!-- Victory Modal -->
         <div id="victory-modal" class="game-modal">
             <div class="modal-box">
@@ -328,7 +344,8 @@
                 </div>
                 <div style="display: flex; gap: 8px; justify-content: center;">
                     <button id="btn-next-floor" class="btn-restart">ASCEND NEXT FLOOR ⬆️</button>
-                    <button id="btn-restart-vic" class="btn-restart" style="background: #6c5ce7; color: #fff;">PLAY FROM FLOOR 1</button>
+                    <button id="btn-view-board-vic" class="btn-restart" style="background: linear-gradient(135deg, #f39c12, #f1c40f); color: #0c0814;">🏆 RANKS</button>
+                    <button id="btn-restart-vic" class="btn-restart" style="background: #6c5ce7; color: #fff;">FLOOR 1</button>
                 </div>
             </div>
         </div>
@@ -341,7 +358,10 @@
                     <p>🏰 <span id="go-floor" style="color: var(--neon-gold); font-weight: bold;"></span></p>
                     <p>🧙‍♂️ WizNerd: <span id="go-wiznerd" style="color: #fff; font-weight: bold;"></span></p>
                 </div>
-                <button id="btn-restart-go" class="btn-restart" style="background: linear-gradient(135deg, #e17055, #d63031); color: #fff;">RETRY FLOOR 1</button>
+                <div style="display: flex; gap: 8px; justify-content: center;">
+                    <button id="btn-restart-go" class="btn-restart" style="background: linear-gradient(135deg, #e17055, #d63031); color: #fff;">RETRY FLOOR 1</button>
+                    <button id="btn-view-board-go" class="btn-restart" style="background: linear-gradient(135deg, #f39c12, #f1c40f); color: #0c0814;">🏆 RANKS</button>
+                </div>
             </div>
         </div>
     </div>

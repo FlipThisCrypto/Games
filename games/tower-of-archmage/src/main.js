@@ -72,11 +72,70 @@ window.updateTowerHUD = function (state) {
     if (bossHpText) bossHpText.textContent = `${state.bossHp} / ${state.bossMaxHp} HP`;
 };
 
+// Tower Leaderboard System
+function getTowerLeaderboard() {
+    try {
+        const raw = localStorage.getItem('wiznerdz_tower_leaderboard');
+        return raw ? JSON.parse(raw) : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveTowerRecord(record) {
+    const board = getTowerLeaderboard();
+    board.push(record);
+    // Sort by highest floor reached descending
+    board.sort((a, b) => b.floor - a.floor);
+    const top10 = board.slice(0, 10);
+    localStorage.setItem('wiznerdz_tower_leaderboard', JSON.stringify(top10));
+    return top10;
+}
+
+function renderTowerLeaderboard() {
+    const listEl = document.getElementById('tower-leaderboard-list');
+    if (!listEl) return;
+
+    const board = getTowerLeaderboard();
+    if (board.length === 0) {
+        listEl.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 16px;">No Tower Ascent records yet. Conquer the summit!</div>';
+        return;
+    }
+
+    let html = '';
+    const medals = ['🥇', '🥈', '🥉'];
+    board.forEach((r, idx) => {
+        const rankBadge = medals[idx] || `#${idx + 1}`;
+        html += `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); background: ${idx % 2 === 0 ? 'rgba(255,255,255,0.03)' : 'transparent'};">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px; min-width: 24px;">${rankBadge}</span>
+                    <div>
+                        <div style="font-weight: bold; color: var(--neon-gold);">${r.wizNerdName || 'WizNerd'}</div>
+                        <div style="font-size: 10px; color: var(--text-dim);">${r.date || 'Tower Ascent'}</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="color: var(--neon-cyan); font-weight: bold;">🏰 Floor ${r.floor} ${r.floor >= 5 ? '👑 SUMMIT' : ''}</div>
+                </div>
+            </div>
+        `;
+    });
+    listEl.innerHTML = html;
+}
+
 // Floor Victory Callback
 window.onTowerFloorVictory = function (data) {
     const modal = document.getElementById('victory-modal');
     document.getElementById('vic-floor').textContent = `Floor ${data.floor} Cleared!`;
     document.getElementById('vic-wiznerd').textContent = data.wizNerd.name;
+
+    saveTowerRecord({
+        floor: data.floor,
+        wizNerdId: data.wizNerd.id,
+        wizNerdName: data.wizNerd.name,
+        date: new Date().toLocaleDateString()
+    });
 
     const nextFloorBtn = document.getElementById('btn-next-floor');
     if (data.floor >= 5) {
@@ -95,6 +154,14 @@ window.onTowerGameOver = function (data) {
     const modal = document.getElementById('gameover-modal');
     document.getElementById('go-floor').textContent = `Fell on Floor ${data.floor}`;
     document.getElementById('go-wiznerd').textContent = data.wizNerd.name;
+
+    saveTowerRecord({
+        floor: data.floor,
+        wizNerdId: data.wizNerd.id,
+        wizNerdName: data.wizNerd.name,
+        date: new Date().toLocaleDateString()
+    });
+
     if (modal) modal.style.display = 'flex';
 };
 
@@ -182,6 +249,40 @@ window.addEventListener('DOMContentLoaded', () => {
             if (window.activeTowerScene) {
                 window.activeTowerScene.scene.restart({ wizNerdId: window.activeTowerScene.selectedWizNerdId, floor: 1 });
             }
+        });
+    }
+
+    // Tower Leaderboard Modal Listeners
+    const openBoardBtn = document.getElementById('btn-open-tower-board');
+    const viewBoardVicBtn = document.getElementById('btn-view-board-vic');
+    const viewBoardGoBtn = document.getElementById('btn-view-board-go');
+    const closeBoardBtn = document.getElementById('btn-close-tower-board');
+    const boardModal = document.getElementById('tower-leaderboard-modal');
+
+    if (openBoardBtn) {
+        openBoardBtn.addEventListener('click', () => {
+            renderTowerLeaderboard();
+            if (boardModal) boardModal.style.display = 'flex';
+        });
+    }
+
+    if (viewBoardVicBtn) {
+        viewBoardVicBtn.addEventListener('click', () => {
+            renderTowerLeaderboard();
+            if (boardModal) boardModal.style.display = 'flex';
+        });
+    }
+
+    if (viewBoardGoBtn) {
+        viewBoardGoBtn.addEventListener('click', () => {
+            renderTowerLeaderboard();
+            if (boardModal) boardModal.style.display = 'flex';
+        });
+    }
+
+    if (closeBoardBtn) {
+        closeBoardBtn.addEventListener('click', () => {
+            if (boardModal) boardModal.style.display = 'none';
         });
     }
 
