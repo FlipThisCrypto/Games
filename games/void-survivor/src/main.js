@@ -95,6 +95,63 @@ window.onSurvivorLevelUp = function (player) {
     modal.style.display = 'flex';
 };
 
+// Survivor Leaderboard System
+function getSurvivorLeaderboard() {
+    try {
+        const raw = localStorage.getItem('wiznerdz_survivor_leaderboard');
+        return raw ? JSON.parse(raw) : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveSurvivorRecord(record) {
+    const board = getSurvivorLeaderboard();
+    board.push(record);
+    // Sort by longest survival time descending, then kills
+    board.sort((a, b) => b.time - a.time || b.kills - a.kills);
+    const top10 = board.slice(0, 10);
+    localStorage.setItem('wiznerdz_survivor_leaderboard', JSON.stringify(top10));
+    return top10;
+}
+
+function renderSurvivorLeaderboard() {
+    const listEl = document.getElementById('survivor-leaderboard-list');
+    if (!listEl) return;
+
+    const board = getSurvivorLeaderboard();
+    if (board.length === 0) {
+        listEl.innerHTML = '<div style="text-align: center; color: var(--text-dim); padding: 16px;">No Void Survivor records recorded yet. Survive the abyss!</div>';
+        return;
+    }
+
+    let html = '';
+    const medals = ['🥇', '🥈', '🥉'];
+    board.forEach((r, idx) => {
+        const rankBadge = medals[idx] || `#${idx + 1}`;
+        const totalSec = Math.floor(r.time / 1000);
+        const mins = Math.floor(totalSec / 60).toString().padStart(2, '0');
+        const secs = (totalSec % 60).toString().padStart(2, '0');
+
+        html += `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); background: ${idx % 2 === 0 ? 'rgba(255,255,255,0.03)' : 'transparent'};">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 16px; min-width: 24px;">${rankBadge}</span>
+                    <div>
+                        <div style="font-weight: bold; color: var(--neon-cyan);">${r.wizNerdName || 'WizNerd'}</div>
+                        <div style="font-size: 10px; color: var(--text-dim);">${r.date || 'Arcane Run'}</div>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="color: var(--neon-gold); font-weight: bold;">⏱️ ${mins}:${secs}</div>
+                    <div style="font-size: 10px; color: var(--neon-green);">💀 ${r.kills} Kills | LV ${r.level}</div>
+                </div>
+            </div>
+        `;
+    });
+    listEl.innerHTML = html;
+}
+
 // Game Over Callback
 window.onSurvivorGameOver = function (data) {
     const modal = document.getElementById('gameover-modal');
@@ -102,10 +159,25 @@ window.onSurvivorGameOver = function (data) {
     const mins = Math.floor(totalSec / 60).toString().padStart(2, '0');
     const secs = (totalSec % 60).toString().padStart(2, '0');
 
+    const boardBefore = getSurvivorLeaderboard();
+    const isNewBest = boardBefore.length === 0 || data.time > boardBefore[0].time;
+
+    saveSurvivorRecord({
+        time: data.time,
+        kills: data.kills,
+        level: data.level,
+        wizNerdId: data.wizNerd.id,
+        wizNerdName: data.wizNerd.name,
+        date: new Date().toLocaleDateString()
+    });
+
     document.getElementById('go-time').textContent = `${mins}:${secs}`;
     document.getElementById('go-kills').textContent = data.kills;
     document.getElementById('go-level').textContent = data.level;
     document.getElementById('go-wiznerd').textContent = data.wizNerd.name;
+
+    const newRecEl = document.getElementById('go-new-record');
+    if (newRecEl) newRecEl.style.display = isNewBest ? 'block' : 'none';
 
     if (modal) modal.style.display = 'flex';
 };
@@ -197,6 +269,32 @@ window.addEventListener('DOMContentLoaded', () => {
             if (window.activeGameScene) {
                 window.activeGameScene.scene.restart({ wizNerdId: window.activeGameScene.selectedWizNerdId });
             }
+        });
+    }
+
+    // Leaderboard Modal Listeners
+    const openBoardBtn = document.getElementById('btn-open-survivor-board');
+    const viewBoardGoBtn = document.getElementById('btn-view-board-go');
+    const closeBoardBtn = document.getElementById('btn-close-survivor-board');
+    const boardModal = document.getElementById('survivor-leaderboard-modal');
+
+    if (openBoardBtn) {
+        openBoardBtn.addEventListener('click', () => {
+            renderSurvivorLeaderboard();
+            if (boardModal) boardModal.style.display = 'flex';
+        });
+    }
+
+    if (viewBoardGoBtn) {
+        viewBoardGoBtn.addEventListener('click', () => {
+            renderSurvivorLeaderboard();
+            if (boardModal) boardModal.style.display = 'flex';
+        });
+    }
+
+    if (closeBoardBtn) {
+        closeBoardBtn.addEventListener('click', () => {
+            if (boardModal) boardModal.style.display = 'none';
         });
     }
 
