@@ -41,6 +41,10 @@ export class HordeEnemy extends Phaser.Physics.Arcade.Sprite {
         if (this.isDead) return;
         this.hp -= amount;
 
+        if (this.scene && this.scene.showCombatText) {
+            this.scene.showCombatText(this.x, this.y - 12, `-${amount}`, '#ff4757', '11px');
+        }
+
         // Flash white
         this.setTint(0xffffff);
         this.scene.time.delayedCall(80, () => {
@@ -66,6 +70,18 @@ export class HordeEnemy extends Phaser.Physics.Arcade.Sprite {
         // Spawn XP Gem
         this.scene.spawnXpGem(this.x, this.y, this.xpValue, this.gemTexture);
         this.scene.addKill();
+
+        // Special Elite Drops
+        if (this.enemyType === 'brute') {
+            if (Math.random() < 0.75) {
+                this.scene.spawnChestRelic(this.x, this.y);
+            } else {
+                this.scene.spawnMagnetOrb(this.x, this.y);
+            }
+        } else if (Math.random() < 0.04) {
+            // Rare magnet drop from normal horde
+            this.scene.spawnMagnetOrb(this.x, this.y);
+        }
 
         // Death particle burst
         const emitter = this.scene.add.particles(this.x, this.y, 'spell_void_spark', {

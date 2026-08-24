@@ -46,6 +46,7 @@ export class SurvivorGameScene extends Phaser.Scene {
         this.enemies = this.add.group({ runChildUpdate: true });
         this.projectiles = this.add.group();
         this.gems = this.physics.add.group();
+        this.specialDrops = this.physics.add.group();
 
         // Spawn Player
         const metadata = getSurvivorWizNerdById(this.selectedWizNerdId);
@@ -110,12 +111,67 @@ export class SurvivorGameScene extends Phaser.Scene {
                 gem.destroy();
             }
         });
+
+        // Player vs Special Drops (Chest / Magnet)
+        this.physics.add.overlap(this.player, this.specialDrops, (player, drop) => {
+            if (!drop.active) return;
+
+            if (drop.dropType === 'chest') {
+                soundFX.playLevelUp();
+                this.showCombatText(player.x, player.y - 20, '🎁 RELIC CHEST! +150 XP', '#f1c40f', '15px');
+                player.addXp(150);
+                this.showLevelUpModal();
+            } else if (drop.dropType === 'magnet') {
+                soundFX.playXpGem();
+                this.showCombatText(player.x, player.y - 20, '🧲 ARCANE VACUUM!', '#00ffff', '15px');
+                // Vacuum all gems
+                this.gems.getChildren().forEach(g => {
+                    if (g.active) {
+                        player.addXp(g.xpValue || 10);
+                        g.destroy();
+                    }
+                });
+            }
+            drop.destroy();
+        });
+    }
+
+    showCombatText(x, y, text, color = '#ffd700', fontSize = '12px') {
+        const txt = this.add.text(x, y - 8, text, {
+            fontFamily: '"Courier New", monospace',
+            fontSize: fontSize,
+            color: color,
+            fontStyle: 'bold',
+            stroke: '#000',
+            strokeThickness: 3
+        }).setOrigin(0.5).setDepth(35);
+
+        this.tweens.add({
+            targets: txt,
+            y: txt.y - 24,
+            alpha: 0,
+            duration: 600,
+            onComplete: () => txt.destroy()
+        });
     }
 
     spawnXpGem(x, y, xpValue, textureKey) {
         const gem = this.gems.create(x, y, textureKey);
         gem.xpValue = xpValue;
         gem.setDepth(5);
+    }
+
+    spawnChestRelic(x, y) {
+        const chest = this.specialDrops.create(x, y, 'chest_relic');
+        chest.dropType = 'chest';
+        chest.setDepth(6);
+    }
+
+    spawnMagnetOrb(x, y) {
+        const mag = this.specialDrops.create(x, y, 'spell_crystal');
+        mag.dropType = 'magnet';
+        mag.setTint(0x00ffff);
+        mag.setDepth(6);
     }
 
     addKill() {
