@@ -403,9 +403,60 @@ export class TowerBattleScene extends Phaser.Scene {
         this.playerMana = 0;
         soundFX.playBossDefeat();
 
-        this.bossHp = Math.max(0, this.bossHp - 140);
-        this.showCombatText(this.bossSprite.x, this.bossSprite.y - 30, '⚡ ULTIMATE CATACLYSM! -140', '#00ffff', '20px');
-        this.cameras.main.shake(200, 0.02);
+        const id = this.metadata.id;
+
+        if (id === '101') {
+            // Pyromancer: Inferno Supernova (160 DMG + clears entire bottom row)
+            this.bossHp = Math.max(0, this.bossHp - 160);
+            this.showCombatText(this.bossSprite.x, this.bossSprite.y - 30, '🔥 INFERNO SUPERNOVA! -160', '#e74c3c', '18px');
+            this.cameras.main.shake(220, 0.02);
+
+            // Explode row 6
+            const bottomRow = TOWER_CONFIG.GRID.ROWS - 1;
+            const matches = [];
+            for (let c = 0; c < TOWER_CONFIG.GRID.COLS; c++) {
+                matches.push({ r: bottomRow, c: c, type: 0 });
+            }
+            this.processMatches(matches);
+
+        } else if (id === '1337') {
+            // Void Summoner: Shadow Drain (90 DMG + 50 HP Life Steal)
+            this.bossHp = Math.max(0, this.bossHp - 90);
+            this.playerHp = Math.min(this.playerMaxHp, this.playerHp + 50);
+            this.showCombatText(this.bossSprite.x, this.bossSprite.y - 30, '🌌 SHADOW DRAIN! -90', '#9b51e0', '18px');
+            this.showCombatText(180, 560, '+50 HP DRAIN', '#2ecc71', '14px');
+            this.cameras.main.shake(160, 0.015);
+
+        } else if (id === '512') {
+            // Illusionist: Absolute Zero (80 DMG + reduces boss next attack by 50%)
+            this.bossHp = Math.max(0, this.bossHp - 80);
+            this.bossAtk = Math.max(8, Math.floor(this.bossAtk * 0.5));
+            this.showCombatText(this.bossSprite.x, this.bossSprite.y - 30, '❄️ ABSOLUTE ZERO! -80 (BOSS WEAKENED)', '#00ffff', '16px');
+            this.cameras.main.shake(160, 0.015);
+
+        } else if (id === '4040') {
+            // Golden Alchemist: Philosopher Elixir (+80 HP & +60 Shield)
+            this.playerHp = Math.min(this.playerMaxHp, this.playerHp + 80);
+            this.playerShield += 60;
+            this.showCombatText(180, 560, '✨ ELIXIR: +80 HP & +60 SHIELD', '#f1c40f', '16px');
+            this.cameras.main.shake(120, 0.01);
+
+        } else {
+            // Crystal Magus #2396: Crystal Cataclysm (130 DMG + 4 Arcane Runes)
+            this.bossHp = Math.max(0, this.bossHp - 130);
+            this.showCombatText(this.bossSprite.x, this.bossSprite.y - 30, '💎 CRYSTAL CATACLYSM! -130', '#00ffff', '18px');
+            this.cameras.main.shake(200, 0.02);
+
+            // Transmute 4 random tiles to Arcane
+            for (let i = 0; i < 4; i++) {
+                const rr = Phaser.Math.Between(0, TOWER_CONFIG.GRID.ROWS - 1);
+                const cc = Phaser.Math.Between(0, TOWER_CONFIG.GRID.COLS - 1);
+                this.grid[rr][cc] = 2; // Arcane Rune
+                if (this.tileSprites[rr][cc]) {
+                    this.tileSprites[rr][cc].setTexture('rune_arcane');
+                }
+            }
+        }
 
         this.updateHUD();
         if (this.bossHp <= 0) {
@@ -463,7 +514,8 @@ export class TowerBattleScene extends Phaser.Scene {
                 playerMaxMana: this.playerMaxMana,
                 bossName: this.bossName,
                 bossHp: this.bossHp,
-                bossMaxHp: this.bossMaxHp
+                bossMaxHp: this.bossMaxHp,
+                wizNerd: this.metadata
             });
         }
     }

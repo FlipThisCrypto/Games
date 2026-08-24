@@ -52,14 +52,15 @@ window.updateTowerHUD = function (state) {
     if (playerManaText) playerManaText.textContent = `${state.playerMana} / ${state.playerMaxMana} MANA`;
 
     if (ultBtn) {
+        const skillName = state.wizNerd ? state.wizNerd.specialSkill.split('(')[0].trim() : 'Ultimate';
         if (state.playerMana >= 100) {
             ultBtn.disabled = false;
             ultBtn.classList.add('ready');
-            ultBtn.textContent = '⚡ CAST ULTIMATE (READY!)';
+            ultBtn.textContent = `⚡ CAST ${skillName.toUpperCase()} (READY!)`;
         } else {
             ultBtn.disabled = true;
             ultBtn.classList.remove('ready');
-            ultBtn.textContent = `⚡ ULTIMATE (${state.playerMana}/100)`;
+            ultBtn.textContent = `⚡ ${skillName} (${state.playerMana}/100)`;
         }
     }
 
