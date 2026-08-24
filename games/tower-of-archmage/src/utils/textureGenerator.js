@@ -109,4 +109,29 @@ export function generateTowerTextures(scene) {
         ctx.fillStyle = '#e67e22';
         ctx.fillRect(22, 34, 20, 16);
     });
+
+    createTexture('boss_spider', 64, 64, (ctx) => {
+        ctx.fillStyle = '#1e272e';
+        ctx.fillRect(14, 18, 36, 28);
+        ctx.fillStyle = '#00cec9';
+        ctx.fillRect(20, 24, 6, 6);
+        ctx.fillRect(38, 24, 6, 6);
+        ctx.fillRect(28, 28, 8, 8);
+        // Crystal fangs
+        ctx.fillStyle = '#00ffff';
+        ctx.fillRect(24, 46, 4, 10);
+        ctx.fillRect(36, 46, 4, 10);
+    });
+
+    createTexture('boss_valerius', 64, 64, (ctx) => {
+        ctx.fillStyle = '#2c3e50';
+        ctx.fillRect(12, 16, 40, 44);
+        ctx.fillStyle = '#ffd700';
+        ctx.fillRect(16, 4, 32, 12); // Golden Crown
+        ctx.fillStyle = '#8e44ad';
+        ctx.fillRect(18, 18, 28, 20); // Arcane Mantle
+        ctx.fillStyle = '#00ffff';
+        ctx.fillRect(22, 24, 6, 6);
+        ctx.fillRect(36, 24, 6, 6);
+    });
 }

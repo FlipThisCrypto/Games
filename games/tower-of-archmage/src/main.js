@@ -79,7 +79,7 @@ window.onTowerFloorVictory = function (data) {
     document.getElementById('vic-wiznerd').textContent = data.wizNerd.name;
 
     const nextFloorBtn = document.getElementById('btn-next-floor');
-    if (data.floor >= 3) {
+    if (data.floor >= 5) {
         document.getElementById('vic-title').textContent = '👑 ARCHMAGE TOWER CONQUERED! 👑';
         if (nextFloorBtn) nextFloorBtn.style.display = 'none';
     } else {

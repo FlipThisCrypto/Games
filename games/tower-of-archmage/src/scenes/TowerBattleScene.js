@@ -41,9 +41,11 @@ export class TowerBattleScene extends Phaser.Scene {
 
     initBossForFloor(floor) {
         const bosses = [
-            { name: 'Floor 1: Void Stone Golem', hp: 280, atk: 22, tex: 'boss_golem' },
-            { name: 'Floor 2: Arch-Lich Malakar', hp: 480, atk: 34, tex: 'boss_lich' },
-            { name: 'Floor 3: Ancient Nether Dragon', hp: 750, atk: 48, tex: 'boss_dragon' }
+            { name: 'Floor 1: Void Stone Golem', hp: 260, atk: 20, tex: 'boss_golem' },
+            { name: 'Floor 2: Crystal Weaver Spider', hp: 360, atk: 26, tex: 'boss_spider' },
+            { name: 'Floor 3: Arch-Lich Malakar', hp: 500, atk: 34, tex: 'boss_lich' },
+            { name: 'Floor 4: Ancient Nether Dragon', hp: 680, atk: 44, tex: 'boss_dragon' },
+            { name: 'Floor 5: Archmage Valerius Supreme', hp: 920, atk: 54, tex: 'boss_valerius' }
         ];
         const b = bosses[floor - 1] || bosses[0];
         this.bossName = b.name;
